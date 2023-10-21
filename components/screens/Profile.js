@@ -16,11 +16,11 @@ export default function Profile({navigation}){
             </View>
             <StatusBar style="auto"></StatusBar>
         </SafeAreaView>
-      );
+    );
 };
 
 const styles = StyleSheet.create({
-    container: {
+    container:{
         flex: 1,
         width: 'auto',
         backgroundColor: '#fff',
@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
     main:{
         flex: 1, 
         alignItems: 'center', 
-        justifyContent: 'center' 
+        justifyContent: 'center', 
     },
     body:{
         flex: 1,

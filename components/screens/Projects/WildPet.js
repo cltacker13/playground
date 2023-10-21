@@ -1,9 +1,6 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View, Image } from 'react-native';
-import { useState } from "react";
-//import tempHappywolf from './assets/tempHappywolf.png';
-//import tempAngrywolf from './assets/tempAngrywolf.png';
-
+import { useState } from 'react';
 
 export default function WildPet(){
     const [visible, setVisible] = useState(true);
@@ -13,12 +10,13 @@ export default function WildPet(){
     };
 
     const happyWolf = require('./assets/tempHappywolf.png');
+    const sadWolf = require('./assets/tempSadwolf.png');  
     const angryWolf = require('./assets/tempAngrywolf.png');  
 
     const [happyStatus, setHappyStatus] = useState(80);
     const [fullStatus, setFullStatus] = useState(80);
     const [entertainedStatus, setEntertainedStatus] = useState(80);
-    const [petMessage, setPetMessage] = useState("I'm your pet!");
+    const [petMessage, setPetMessage] = useState("I am your pet!");
     const [mood, setMood] = useState(happyWolf);
 
     var myPet = {
@@ -26,51 +24,72 @@ export default function WildPet(){
         //additional details to be added.
     };
 
-/*    function updateMessage () {
-        if(fullStatus > 70 && happyStatus > 70 && entertainedStatus > 70){
-            setPetMessage("I am loved!");
-        }else if(fullStatus <= 70 || happyStatus <= 70 || entertainedStatus <= 70){
-            setPetMessage("I need you.");
-        };
-        //addition message outputs to be added.
-        return;
-    };*/
-
     function updateMoodAndMessage () {
-        if(fullStatus > 70 && happyStatus > 70 && entertainedStatus > 70){
-            setPetMessage("I am loved!");
-            setMood(happyWolf);
-            //console.log(mood);
-        }else if(fullStatus <= 70 || happyStatus <= 70 || entertainedStatus <= 70){
-            setMood(angryWolf);
-            setPetMessage("I need you.");
-            //console.log(mood);
+        if(fullStatus >= 70 
+            && happyStatus >= 70 
+            && entertainedStatus >= 70){
+                setPetMessage("I am loved!");
+                setMood(happyWolf);
+                //console.log(mood);
+        }else if(fullStatus < 70 
+            || happyStatus < 70 
+            || entertainedStatus < 70){
+                setMood(sadWolf);
+                setPetMessage("I miss you.");
+                //console.log(mood);
+            if(fullStatus < 50 
+                || happyStatus < 50 
+                || entertainedStatus < 50){
+                    setMood(angryWolf);
+                    setPetMessage("I need you.");
+                    //console.log(mood);
+            };
         };
-        //addition mood outputs to be added.
+        //addition outputs to be added.
         return;
     };
 
+    function increaseValues (status, increment) {
+        return ( Math.min(Math.max(status+increment,0),100) );
+    }
+    function decreaseValues (status, increment) {
+        return ( Math.min(Math.max(status-increment,0),100) );
+    }
+
     function pet () {
-        setHappyStatus(happyStatus+10);
-        setEntertainedStatus(entertainedStatus+10);
-        //updateMessage();
+        setHappyStatus(
+            increaseValues(happyStatus,10));
+        setEntertainedStatus(
+            increaseValues(entertainedStatus,5));
         updateMoodAndMessage();
         //console.log('Pet:',happyStatus,fullStatus,entertainedStatus);
         return;
     }
     function feed () {
-        setFullStatus(fullStatus+10);
-        setHappyStatus(happyStatus+10);
-        //updateMessage();
-        updateMoodAndMessage();
-        //console.log('Feed:',happyStatus,fullStatus,entertainedStatus);
+        if(fullStatus < 100){
+            setFullStatus(
+                increaseValues(fullStatus,10));
+            setHappyStatus(
+                increaseValues(happyStatus,5));
+            setEntertainedStatus(
+                decreaseValues(entertainedStatus,5));
+        }else{
+            setHappyStatus(
+                decreaseValues(happyStatus,10));
+            setEntertainedStatus(
+                decreaseValues(entertainedStatus,5));
+        };
+            updateMoodAndMessage();
+            //console.log('Feed:',happyStatus,fullStatus,entertainedStatus);
         return;
     };
     function play () {
-        setEntertainedStatus(entertainedStatus+10);
-        setHappyStatus(happyStatus+10);
-        setFullStatus(fullStatus-10);
-        //updateMessage();
+        setEntertainedStatus(
+            increaseValues(entertainedStatus,10));
+        setHappyStatus(
+            increaseValues(happyStatus,5));
+        setFullStatus(
+            decreaseValues(fullStatus,5));
         updateMoodAndMessage();
         //console.log('Play:',happyStatus,fullStatus,entertainedStatus);
         return;
@@ -93,22 +112,19 @@ export default function WildPet(){
                     </View>
                 </View>
                 <View style={styles.buttonRow}>
-                    <Pressable style={styles.button} 
-                        onPress={pet}>
-                            <Text style={styles.buttonLabel}>Pet</Text>
+                    <Pressable style={styles.button} onPress={pet}>
+                        <Text style={styles.buttonLabel}>Pet</Text>
                     </Pressable> 
-                    <Pressable style={styles.button} 
-                        onPress={feed}>
-                            <Text style={styles.buttonLabel}>Feed</Text>
+                    <Pressable style={styles.button} onPress={feed}>
+                        <Text style={styles.buttonLabel}>Feed</Text>
                     </Pressable> 
-                    <Pressable style={styles.button} 
-                        onPress={play}>
-                            <Text style={styles.buttonLabel}>Play</Text>
-                    </Pressable> 
-                </View> 
+                    <Pressable style={styles.button} onPress={play}>
+                        <Text style={styles.buttonLabel}>Play</Text>
+                    </Pressable>
+                </View>
             </View>
         </View>
-      );
+    );
 };
 
 const styles = StyleSheet.create({
@@ -116,7 +132,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
         alignItems: 'center',
-        height: 450,
+        height: 'auto',
         marginTop: 10,
     },
     h1:{

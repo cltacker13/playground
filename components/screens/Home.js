@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, Pressable } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import Nav from './Nav';
@@ -16,11 +16,11 @@ export default function Home({navigation}){
             </View>
             <StatusBar style="auto"></StatusBar>
         </SafeAreaView>
-      );
+    );
 };
 
 const styles = StyleSheet.create({
-    container: {
+    container:{
         flex: 1,
         width: 'auto',
         backgroundColor: '#fff',
@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
     main:{
         flex: 1, 
         alignItems: 'center', 
-        justifyContent: 'center' 
+        justifyContent: 'center', 
     },
     body:{
         flex: 1,
@@ -40,4 +40,4 @@ const styles = StyleSheet.create({
         margin: 10,
         paddingHorizontal: 15,
     },
-  });
+});

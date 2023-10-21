@@ -1,6 +1,7 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { StatusBar } from 'expo-status-bar';
 import Nav from './Nav';
 import SimpleCalc from './Projects/SimpleCalc';
@@ -10,21 +11,23 @@ export default function Projects({navigation}){
 
     return(
         <SafeAreaView style={styles.container}>
+            <ScrollView>
             <View style={styles.main}>
                 <Nav navigation={navigation}/>
                 <View style={styles.body}>
                     <Text style={styles.h1}>This is the Projects Page. </Text>
-                    <View style={styles.entry}> <SimpleCalc/> </View>
-                    <View style={styles.entry}> <WildPet/> </View>
+                    <View style={styles.entry}><SimpleCalc/></View>
+                    <View style={styles.entry}><WildPet/></View>
                 </View>
             </View>
             <StatusBar style="auto"></StatusBar>
+            </ScrollView>
         </SafeAreaView>
-      );
+    );
 };
 
 const styles = StyleSheet.create({
-    container: {
+    container:{
         flex: 1,
         width: 'auto',
         backgroundColor: '#fff',
@@ -48,7 +51,7 @@ const styles = StyleSheet.create({
     entry:{
         marginTop: 10,
         marginHorizontal: 10,
-        //width: 350,
-    } 
+        width: 350,
+    },
     
 });

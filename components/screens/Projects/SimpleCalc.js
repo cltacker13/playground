@@ -1,11 +1,10 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useState, useRef } from "react";
+import { Pressable, StyleSheet, Text, View, TextInput } from 'react-native';
+import { useState } from 'react';
 
 export default function SimpleCalc(){
     const [visible, setVisible] = useState(false);
-    const inputRef = useRef(null); 
-    const resultRef = useRef(null); 
+    const [inputRef, setInputRef] = useState('');
     const [result, setResult] = useState(0); 
    
     function toggleVisibility(){
@@ -13,35 +12,36 @@ export default function SimpleCalc(){
     }
 
     function plus(e) { 
-      e.preventDefault(); 
-      setResult((result) => result + Number(inputRef.current.value));
+        e.preventDefault(); 
+        setResult((result) => result + Number(inputRef));
     }; 
    
     function minus(e) { 
-      e.preventDefault(); 
-      setResult((result) => result - Number(inputRef.current.value));
+        e.preventDefault(); 
+        setResult((result) => result - Number(inputRef));
     };
    
     function times(e) { 
-      e.preventDefault(); 
-      setResult((result) => result * Number(inputRef.current.value));
+        e.preventDefault(); 
+        setResult((result) => result * Number(inputRef));
     }; 
    
     function divide(e) { 
-      e.preventDefault(); 
-      setResult((result) => result / Number(inputRef.current.value));
+        e.preventDefault(); 
+        if(result !== 0){
+            setResult((result) => result / Number(inputRef));
+        };
     };
    
     function resetInput(e) { 
-      e.preventDefault();
-      inputRef.current.value = null;
+        e.preventDefault();
+        setInputRef('');
     };
    
     function resetAll(e) { 
-      e.preventDefault();
-      setResult(0);
-      inputRef.current.value = null;
-  
+        e.preventDefault();
+        setResult(0);
+        setInputRef('');
     }; 
     return(
         <View style={styles.body}>
@@ -51,44 +51,41 @@ export default function SimpleCalc(){
                 <Text style={{fontStyle: 'italic'}}>Click to view.</Text>
             </Pressable>
             <View style={visible ? styles.showCalc : styles.hide}>
-                <form> 
-                <p ref={resultRef}> 
+                <Text style={styles.result}>
                     {result} 
-                </p> 
-                <input
-                    pattern="[0-9]" 
-                    ref={inputRef} 
-                    type="number" 
-                    placeholder="Type a number" 
-                /> 
-                <Pressable style={styles.button} 
-                    onPress={plus}>
-                        <Text style={styles.buttonLabel}>+</Text>
-                </Pressable> 
-                <Pressable style={styles.button} 
-                    onPress={minus}>
-                        <Text style={styles.buttonLabel}>-</Text>
-                </Pressable> 
-                <Pressable style={styles.button} 
-                    onPress={times}>
-                        <Text style={styles.buttonLabel}>*</Text>
-                </Pressable> 
-                <Pressable style={styles.button} 
-                    onPress={divide}>
-                        <Text style={styles.buttonLabel}>/</Text>
-                </Pressable> 
-                <Pressable style={styles.button} 
-                    onPress={resetInput}>
-                        <Text style={styles.buttonLabel}>Reset Input</Text>
-                </Pressable> 
-                <Pressable style={styles.button} 
-                    onPress={resetAll}>
-                        <Text style={styles.buttonLabel}>Reset All</Text>
-                </Pressable> 
-                </form> 
+                </Text>
+                    <TextInput
+                        style={styles.inputbox}
+                        value={inputRef}
+                        placeholder="Type a number" 
+                        inputMode="numeric"
+                        onChangeText={(e)=>setInputRef(e)}
+                    />
+                    <View style={styles.buttonRow}>
+                        <Pressable style={styles.opButton} onPress={plus}>
+                            <Text style={styles.buttonLabel}>+</Text>
+                        </Pressable>
+                        <Pressable style={styles.opButton} onPress={minus}>
+                            <Text style={styles.buttonLabel}>-</Text>
+                        </Pressable>
+                        <Pressable style={styles.opButton} onPress={times}>
+                            <Text style={styles.buttonLabel}>*</Text>
+                        </Pressable>
+                        <Pressable style={styles.opButton} onPress={divide}>
+                            <Text style={styles.buttonLabel}>/</Text>
+                        </Pressable>
+                    </View>
+                    <View style={styles.buttonRow}>
+                        <Pressable style={styles.button} onPress={resetInput}>
+                            <Text style={styles.buttonLabel}>Reset Input</Text>
+                        </Pressable>
+                        <Pressable style={styles.button} onPress={resetAll}>
+                            <Text style={styles.buttonLabel}>Reset All</Text>
+                        </Pressable>
+                    </View>
             </View>
         </View>
-      );
+    );
 };
 
 const styles = StyleSheet.create({
@@ -96,7 +93,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
         alignItems: 'center',
-        height: 500,
+        height: 'auto',
         marginTop: 10,
     },
     h1:{
@@ -114,6 +111,30 @@ const styles = StyleSheet.create({
         height: 'auto',
         width: 300,
     },
+    result:{
+        margin:5,
+    },
+    inputbox:{
+        margin:5,
+        borderStyle: 'solid',
+        borderWidth: 1,
+        borderColor: 'orange',
+        padding: 2,
+    },
+    buttonRow:{
+        flexDirection: 'row',
+        width: 'auto',
+        alignItems: 'center',
+    },
+    opButton:{
+        borderRadius: 10, 
+        height: 25,
+        width: 50,
+        backgroundColor: 'orange',
+        alignItems: 'center',
+        justifyContent: 'center',
+        margin: 1,
+    },
     button:{
         borderRadius: 10, 
         height: 25,
@@ -123,7 +144,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         margin: 1,
     },
-    buttonLabel: {
+    buttonLabel:{
         color: '#fff',
         fontWeight: 'bold',
         fontSize: 15,
