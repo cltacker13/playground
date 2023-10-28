@@ -11,17 +11,17 @@ export default function Projects({navigation}){
 
     return(
         <SafeAreaView style={styles.container}>
-            <ScrollView>
             <View style={styles.main}>
                 <Nav navigation={navigation}/>
                 <View style={styles.body}>
                     <Text style={styles.h1}>This is the Projects Page. </Text>
-                    <View style={styles.entry}><SimpleCalc/></View>
-                    <View style={styles.entry}><WildPet/></View>
+                    <ScrollView indicatorStyle='black'>
+                        <View style={styles.entry}><SimpleCalc/></View>
+                        <View style={styles.entry}><WildPet/></View>
+                    </ScrollView>
                 </View>
             </View>
             <StatusBar style="auto"></StatusBar>
-            </ScrollView>
         </SafeAreaView>
     );
 };
@@ -34,10 +34,12 @@ const styles = StyleSheet.create({
     },
     main:{
         flex: 1, 
-        height: 'auto',
-        alignItems: 'center', 
-    },
+        //height: 'auto',
+        alignItems: 'center',
+        //justifyContent: 'flex-start', 
+    }, 
     body:{
+        flex: 1,
         margin: 10,
         paddingHorizontal: 15,
         textAlign: 'left',
@@ -45,7 +47,7 @@ const styles = StyleSheet.create({
     },
     h1:{
         fontWeight:"bold",
-        fontSize: 18,
+        fontSize: 20,
         textAlign: 'center',
     },
     entry:{

@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View, TextInput } from 'react-native';
 import { useState } from 'react';
 
 export default function SimpleCalc(){
-    const [visible, setVisible] = useState(false);
+    const [visible, setVisible] = useState(true);
     const [inputRef, setInputRef] = useState('');
     const [result, setResult] = useState(0); 
    
@@ -47,7 +47,7 @@ export default function SimpleCalc(){
         <View style={styles.body}>
             <Pressable onPress={toggleVisibility}>
                 <Text style={styles.h1}>Simple Calculator</Text>
-                <Text>A task from a React Education Course to create the simplest working calculator. </Text>
+                <Text style={styles.descText}>A task from a React Education Course to create the simplest working calculator. </Text>
                 <Text style={{fontStyle: 'italic'}}>Click to view.</Text>
             </Pressable>
             <View style={visible ? styles.showCalc : styles.hide}>
@@ -63,16 +63,16 @@ export default function SimpleCalc(){
                     />
                     <View style={styles.buttonRow}>
                         <Pressable style={styles.opButton} onPress={plus}>
-                            <Text style={styles.buttonLabel}>+</Text>
+                            <Text style={styles.opButtonLabel}>+</Text>
                         </Pressable>
                         <Pressable style={styles.opButton} onPress={minus}>
-                            <Text style={styles.buttonLabel}>-</Text>
+                            <Text style={styles.opButtonLabel}>-</Text>
                         </Pressable>
                         <Pressable style={styles.opButton} onPress={times}>
-                            <Text style={styles.buttonLabel}>*</Text>
+                            <Text style={styles.opButtonLabel}>*</Text>
                         </Pressable>
                         <Pressable style={styles.opButton} onPress={divide}>
-                            <Text style={styles.buttonLabel}>/</Text>
+                            <Text style={styles.opButtonLabel}>/</Text>
                         </Pressable>
                     </View>
                     <View style={styles.buttonRow}>
@@ -98,21 +98,24 @@ const styles = StyleSheet.create({
     },
     h1:{
         fontWeight:"bold",
-        fontSize: 18,
+        fontSize: 20,
         textAlign: 'center',
+    },
+    descText:{
+        fontSize: 16,
     },
     hide:{
         display: 'none',
         height: 10,
     },
     showCalc:{
-        //display: 'flex',
         alignItems: 'center',
         height: 'auto',
-        width: 300,
+        width: 350,
     },
     result:{
         margin:5,
+        fontSize: 35,
     },
     inputbox:{
         margin:5,
@@ -120,6 +123,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: 'orange',
         padding: 2,
+        fontSize: 20,
     },
     buttonRow:{
         flexDirection: 'row',
@@ -128,17 +132,22 @@ const styles = StyleSheet.create({
     },
     opButton:{
         borderRadius: 10, 
-        height: 25,
-        width: 50,
+        height: 35,
+        width: 60,
         backgroundColor: 'orange',
         alignItems: 'center',
         justifyContent: 'center',
         margin: 1,
     },
+    opButtonLabel:{
+        color: '#fff',
+        fontWeight: 'bold',
+        fontSize: 25,
+    },
     button:{
         borderRadius: 10, 
-        height: 25,
-        width: 100,
+        height: 35,
+        width: 120,
         backgroundColor: 'red',
         alignItems: 'center',
         justifyContent: 'center',
@@ -147,7 +156,7 @@ const styles = StyleSheet.create({
     buttonLabel:{
         color: '#fff',
         fontWeight: 'bold',
-        fontSize: 15,
+        fontSize: 20,
     },
 
 });

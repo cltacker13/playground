@@ -11,7 +11,7 @@ export default function Profile({navigation}){
             <View style={styles.main}>
                 <Nav navigation={navigation}/>
                 <View style={styles.body}>
-                    <Text>This is the Profile Page. </Text>
+                    <Text style={styles.bodyText}>This is the Profile Page. </Text>
                 </View>
             </View>
             <StatusBar style="auto"></StatusBar>
@@ -24,21 +24,18 @@ const styles = StyleSheet.create({
         flex: 1,
         width: 'auto',
         backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center',
     },
     main:{
-        flex: 1, 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-    },
-    body:{
-        flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
         height: 'auto',
+        alignItems: 'center',
+        justifyContent: 'flex-start', 
+    }, 
+    body:{
         margin: 10,
         paddingHorizontal: 15,
+        textAlign: 'left',
     },
-    
+    bodyText:{
+        fontSize: 18,
+    },
 });

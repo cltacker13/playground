@@ -11,7 +11,8 @@ export default function About({navigation}){
             <View style={styles.main}>
                 <Nav navigation={navigation}/>
                 <View style={styles.body}>
-                    <Text>Hello, My name is Chrystal. 
+                    <Text style={styles.bodyText}>
+                        Hello, My name is Chrystal. 
                         I am currently learning how to develop cross platform apps with React. 
                         Follow my discovery journey here and find links to various completed projects, as they become available. 
                     </Text>
@@ -27,20 +28,18 @@ const styles = StyleSheet.create({
         flex: 1,
         width: 'auto',
         backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center',
     },
     main:{
-        flex: 1, 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-    },
-    body:{
-        flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
         height: 'auto',
+        alignItems: 'center',
+        justifyContent: 'flex-start', 
+    }, 
+    body:{
         margin: 10,
         paddingHorizontal: 15,
+        textAlign: 'left',
+    },
+    bodyText:{
+        fontSize: 18,
     },
 });

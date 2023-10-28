@@ -11,8 +11,9 @@ export default function Nav({navigation}){
 
     return(
         <View style={styles.navContainer}>
-            <Pressable onPress={toggleVisibility}>
-                <Text>Navigation Menu</Text>
+            <Pressable style={styles.navListHeader} 
+                onPress={toggleVisibility}>
+                <Text style={styles.headerText}>Navigation Menu</Text>
             </Pressable>
             <View style={visible ? styles.showNavList : styles.hideNavList}>
                 <Pressable style={styles.navButton} 
@@ -40,11 +41,19 @@ export default function Nav({navigation}){
 
 const styles = StyleSheet.create({
     navContainer:{
-        width: 150,
+        //flex: 1,
+        //height: 50,
         backgroundColor: '#fff',
         alignItems: 'center',
-        justifyContent: 'center',
+        //justifyContent: 'flex-start',
         marginBottom: 5,
+    },
+    navListHeader:{
+        height: 30,
+        marginBottom: 5,
+    },
+    headerText:{
+        fontSize: 20,
     },
     hideNavList:{
         display: 'none',
@@ -53,14 +62,16 @@ const styles = StyleSheet.create({
     showNavList:{
         //display: 'flex',
         flexDirection: 'row',
-        alignItems: 'center',
-        height: 'auto',
-        width: 300,
+        //flex: 1,
+        //alignItems: 'center',
+        //height: 40,
+        //width: 300,
     },
     navButton:{
+        //flex: .3,
         borderRadius: 25, 
-        height: 25,
-        width: 100,
+        height: 35,
+        width: 120,
         backgroundColor: 'purple',
         alignItems: 'center',
         justifyContent: 'center',
@@ -69,6 +80,6 @@ const styles = StyleSheet.create({
     buttonLabel:{
         color: '#fff',
         fontWeight: 'bold',
-        fontSize: 15,
+        fontSize: 20,
     },
 });

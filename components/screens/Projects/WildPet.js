@@ -99,14 +99,14 @@ export default function WildPet(){
         <View style={styles.body}>
             <Pressable onPress={toggleVisibility}>
                 <Text style={styles.h1}>My Wild Pet</Text>
-                <Text>Personal task, inspired by a popular digital pet game. </Text>
+                <Text style={styles.descText}>Personal task, inspired by a popular digital pet game. </Text>
                 <Text style={{fontStyle: 'italic'}}>Click to view.</Text>
             </Pressable>
             <View style={visible ? styles.showPet : styles.hide}>
                 <View style={styles.petContainer}>
-                    <Text>{myPet.petName}</Text>
-                    <Text>{petMessage}</Text>
-                    <Text>Happy: {happyStatus} | Full: {fullStatus} | Entertained: {entertainedStatus}</Text>
+                    <Text style={styles.petText}>{myPet.petName}</Text>
+                    <Text style={styles.petText}>{petMessage}</Text>
+                    <Text style={styles.petText}>Happy: {happyStatus} | Full: {fullStatus} | Entertained: {entertainedStatus}</Text>
                     <View style={styles.petMood}>
                         <Image style={styles.img} source={mood}/>
                     </View>
@@ -137,8 +137,11 @@ const styles = StyleSheet.create({
     },
     h1:{
         fontWeight:"bold",
-        fontSize: 18,
+        fontSize: 20,
         textAlign: 'center',
+    },
+    descText:{
+        fontSize: 16,
     },
     hide:{
         display: 'none',
@@ -151,26 +154,29 @@ const styles = StyleSheet.create({
         width: 300,
     },
     petContainer:{
-        height: 200,
+        height: 250,
         width: 'auto',
         alignItems: 'center',
+    },
+    petText:{
+        fontSize: 16,
     },
     petMood:{
         backgroundColor: '#fff',
     },
     img:{
-        height: 150,
-        width: 150,
+        height: 200,
+        width: 200,
     },
     buttonRow:{
         flexDirection: 'row',
-        height: 50,
+        //height: 60,
         width: 'auto',
         alignItems: 'center',
     },
     button:{
         borderRadius: 10, 
-        height: 25,
+        height: 35,
         width: 60,
         backgroundColor: 'blue',
         alignContent: 'center',
@@ -180,7 +186,7 @@ const styles = StyleSheet.create({
     buttonLabel: {
         color: '#fff',
         fontWeight: 'bold',
-        fontSize: 15,
+        fontSize: 20,
         textAlign: 'center',
     },
 
