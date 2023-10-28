@@ -1,6 +1,6 @@
 {
   "files": {
-    "main.js": "/playground/static/js/main.a2762d9d.js",
+    "main.js": "/playground/static/js/main.cb4c0908.js",
     "static/js/326.910eb13a.js": "/playground/static/js/326.910eb13a.js",
     "favicon.ico": "/playground/favicon.ico",
     "static/media/tempHappywolf.png": "/playground/static/media/tempHappywolf.1fa78e29b2bb2f7b081b.png",
@@ -11,11 +11,11 @@
     "favicon-16.png": "/playground/favicon-16.png",
     "manifest.json": "/playground/manifest.json",
     "serve.json": "/playground/serve.json",
-    "main.a2762d9d.js.map": "/playground/static/js/main.a2762d9d.js.map",
+    "main.cb4c0908.js.map": "/playground/static/js/main.cb4c0908.js.map",
     "326.910eb13a.js.map": "/playground/static/js/326.910eb13a.js.map"
   },
   "entrypoints": [
     "static/js/326.910eb13a.js",
-    "static/js/main.a2762d9d.js"
+    "static/js/main.cb4c0908.js"
   ]
 }
