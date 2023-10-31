@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View, TextInput } from 'react-native';
 import { useState } from 'react';
 
 export default function SimpleCalc(){
-    const [visible, setVisible] = useState(true);
+    const [visible, setVisible] = useState(false);
     const [inputRef, setInputRef] = useState('');
     const [result, setResult] = useState(0); 
    

@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import Nav from './Nav';
 import SimpleCalc from './Projects/SimpleCalc';
 import WildPet from './Projects/WildPet';
+import GameCollection from './Projects/GameCollection';
 
 export default function Projects({navigation}){
 
@@ -18,6 +19,7 @@ export default function Projects({navigation}){
                     <ScrollView indicatorStyle='black'>
                         <View style={styles.entry}><SimpleCalc/></View>
                         <View style={styles.entry}><WildPet/></View>
+                        <View style={styles.entry}><GameCollection/></View>
                     </ScrollView>
                 </View>
             </View>

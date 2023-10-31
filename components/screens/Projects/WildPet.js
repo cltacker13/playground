@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View, Image } from 'react-native';
 import { useState } from 'react';
 
 export default function WildPet(){
-    const [visible, setVisible] = useState(true);
+    const [visible, setVisible] = useState(false);
    
     function toggleVisibility(){
         return setVisible(!visible);
