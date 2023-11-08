@@ -4,24 +4,49 @@ import { useState } from 'react';
 
 //sample of game data
 const gameList = [
-    {name: 'Catan', players: '2-4'},
-    {name: 'Contagion', players: '2-5'},
-    {name: 'Millebornes', players: '2-4'},
-    {name: 'Monopoly', players: '2-6'},
-    {name: 'Naruto', players: '2-4'},
-    {name: 'Pandemic', players: '2-4'},
-    {name: 'Red Rising', players: '1-5'},
-    {name: 'Sorry', players: '2-4'},
-    {name: 'Tsuro', players: '2-8'},
-    {name: 'Villianous', players: '2-4'},
-    {name: 'WingSpan', players: '1-5'},
+    {id: '100001', name: 'Catan', players: '2-4'},
+    {id: '100002', name: 'Contagion', players: '2-5'},
+    {id: '100003', name: 'Millebornes', players: '2-4'},
+    {id: '100004', name: 'Monopoly', players: '2-6'},
+    {id: '100005', name: 'Naruto', players: '2-4'},
+    {id: '100006', name: 'Pandemic', players: '2-4'},
+    {id: '100007', name: 'Red Rising', players: '1-5'},
+    {id: '100008', name: 'Sorry', players: '2-4'},
+    {id: '100009', name: 'Tsuro', players: '2-8'},
+    {id: '100010', name: 'Villianous', players: '2-4'},
+    {id: '100011', name: 'WingSpan', players: '1-5'},
 ];
 
+//future feature to sort list alphabetically by name
+function sortListByName(list){
+    var sortedList = [];
+
+    return sortedList;
+}
+
+//future feature add new entry to list & save to game db
+function addItem(){
+    var id = Number(gameList[gameList.length-1].id)+1;
+    var name = gameRef;
+    var players = `${minPlayerRef}-${maxPlayerRef}`;
+    gameList.push({'id': id, 'name': name, 'players': players});
+    console.log(`{${id}} ${name} (${players} players)`);
+    return;
+};
+
+//future feature edit existing entry in list & save edits to game db
+function editItem(id){
+    return console.log(`Edit ${id} clicked.`); //the onPress triggers automatically - bug.
+};
+
 //future update add edit button to each entry
-const Item = ({name,players}) => (
+const Item = ({id,name,players}) => (
     <View style={styles.itemContainer}>
         <Text style={styles.itemName}>{name} </Text>
         <Text style={styles.itemDetails}>({players} players)</Text>
+        <Pressable onPress={editItem(id)}>
+            <Text style={{fontStyle: 'italic'}}> Edit </Text>
+        </Pressable>
     </View>
 );
 
@@ -29,26 +54,22 @@ const Separator = () => <View style={styles.separator} />
 
 export default function GameCollection(){
     const [visible, setVisible] = useState(false);
+    const [addVisible, setAddVisible] = useState(false);
     const [gameRef, setGameRef] = useState('');
+    const [minPlayerRef, setMinPlayerRef] = useState('');
+    const [maxPlayerRef, setMaxPlayerRef] = useState('');
 
     function toggleVisibility(){
         return setVisible(!visible);
     };
 
-    //future feature add new entry to list & save to game db
-    function addItem(){
-        var name = gameRef;
-        var players = '2-4';
-        console.log(`${name} (${players} players)`);
-        return;
+    function toggleAddVisibility(){
+        return setAddVisible(!addVisible);
     };
-
-    //future feature edit existing entry in list & save edits to game db
-    function editItem(){return};
 
     function renderItem({item}){
         return(
-            <Item name={item.name} players={item.players}/>
+            <Item id={item.id} name={item.name} players={item.players}/>
         );
     };
 
@@ -61,15 +82,35 @@ export default function GameCollection(){
                 <Text style={{fontStyle: 'italic'}}>Click to view.</Text>
             </Pressable>
             <View style={visible ? styles.showGames : styles.hide}>
-                <Text style={{fontStyle: 'italic'}}>Upcoming feature: Add Game</Text>
-                <View style={styles.inputContainer}>
+                <Pressable onPress={toggleAddVisibility}>
+                    <Text style={{fontStyle: 'italic'}}>Click to Add New Game</Text>
+                </Pressable>
+                <View style={addVisible ? styles.inputContainer : styles.hide}>
+                    <Text style={styles.inputLabel}>Game Name</Text>
                     <TextInput
                         style={styles.inputbox}
                         value={gameRef}
-                        placeholder="Type Game Name" 
+                        placeholder="Name" 
                         inputMode="text"
                         onChangeText={(e)=>setGameRef(e)}
                     />
+                    <Text style={styles.inputLabel}>Number of Players</Text>
+                    <View style={styles.inputRange}>
+                    <TextInput
+                        style={styles.inputNumBox}
+                        value={minPlayerRef}
+                        placeholder="Min #" 
+                        inputMode="numeric"
+                        onChangeText={(e)=>setMinPlayerRef(e)}
+                    />
+                    <TextInput
+                        style={styles.inputNumBox}
+                        value={maxPlayerRef}
+                        placeholder="Max #" 
+                        inputMode="numeric"
+                        onChangeText={(e)=>setMaxPlayerRef(e)}
+                    />
+                    </View>
                     <Pressable style={styles.addButton} onPress={addItem}>
                         <Text style={styles.addButtonLabel}>+</Text>
                     </Pressable>
@@ -110,8 +151,11 @@ const styles = StyleSheet.create({
         width: 350,
     },
     inputContainer:{
-        flexDirection: 'row',
+        //flexDirection: 'row',
         justifyContent: 'space-between',
+    },
+    inputLabel:{
+        fontSize: 18,
     },
     inputbox:{
         margin: 5,
@@ -119,7 +163,19 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: 'purple',
         padding: 2,
-        fontSize: 20,
+        fontSize: 18,
+    },
+    inputRange:{
+        flexDirection: 'row',
+    },
+    inputNumBox:{
+        margin: 5,
+        width: 60,
+        borderStyle: 'solid',
+        borderWidth: 1,
+        borderColor: 'purple',
+        padding: 2,
+        fontSize: 18,
     },
     addButton:{
         borderRadius: 10, 
