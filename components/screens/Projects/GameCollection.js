@@ -82,7 +82,7 @@ export default function GameCollection(){
                 console.log(`Failed to Add: {${id}} ${name} (${players} players)`)
             };
         }else{
-            console.log('Please entry valid Game Data.');
+            console.log('Please enter valid Game Data.');
         };
         return;
     };
