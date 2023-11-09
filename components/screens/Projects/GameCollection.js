@@ -1,6 +1,5 @@
-import React from 'react';
-import { Pressable, StyleSheet, Text, View, TextInput, FlatList } from 'react-native';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, TextInput, Pressable, FlatList } from 'react-native';
 
 //sample of game data
 const gameList = [
@@ -17,34 +16,17 @@ const gameList = [
     {id: '100011', name: 'WingSpan', players: '1-5'},
 ];
 
-//future feature to sort list alphabetically by name
-function sortListByName(list){
-    var sortedList = [];
-
-    return sortedList;
-}
-
-//future feature add new entry to list & save to game db
-function addItem(){
-    var id = Number(gameList[gameList.length-1].id)+1;
-    var name = gameRef;
-    var players = `${minPlayerRef}-${maxPlayerRef}`;
-    gameList.push({'id': id, 'name': name, 'players': players});
-    console.log(`{${id}} ${name} (${players} players)`);
-    return;
-};
-
 //future feature edit existing entry in list & save edits to game db
+//Scope issue: has to be outside of default function if called in Item Component
 function editItem(id){
-    return console.log(`Edit ${id} clicked.`); //the onPress triggers automatically - bug.
+    return console.log(`Edit ${id} clicked.`);
 };
 
-//future update add edit button to each entry
 const Item = ({id,name,players}) => (
     <View style={styles.itemContainer}>
         <Text style={styles.itemName}>{name} </Text>
         <Text style={styles.itemDetails}>({players} players)</Text>
-        <Pressable onPress={editItem(id)}>
+        <Pressable onPress={() => editItem(id)}>
             <Text style={{fontStyle: 'italic'}}> Edit </Text>
         </Pressable>
     </View>
@@ -55,7 +37,7 @@ const Separator = () => <View style={styles.separator} />
 export default function GameCollection(){
     const [visible, setVisible] = useState(false);
     const [addVisible, setAddVisible] = useState(false);
-    const [gameRef, setGameRef] = useState('');
+    const [gameNameRef, setGameNameRef] = useState('');
     const [minPlayerRef, setMinPlayerRef] = useState('');
     const [maxPlayerRef, setMaxPlayerRef] = useState('');
 
@@ -71,6 +53,44 @@ export default function GameCollection(){
         return(
             <Item id={item.id} name={item.name} players={item.players}/>
         );
+    };
+
+    //future feature to sort list alphabetically by name
+    function sortListByName(list){
+        var sortedList = [];
+        return sortedList;
+    }
+
+    //future feature add new entry to list & save to game db
+    function addItem(){
+        //entry error handling.
+        if(gameNameRef.trim() !== '' && minPlayerRef > 0 && maxPlayerRef >= minPlayerRef){
+            var id = Number(gameList[gameList.length-1].id)+1;
+            var name = gameNameRef;
+            if(minPlayerRef === maxPlayerRef){
+                var players = `${minPlayerRef}`;
+            }else{
+                var players = `${minPlayerRef}-${maxPlayerRef}`;
+            };
+            //set as true when db accepts new values.
+            var saved = true;
+            if(saved){
+                gameList.push({'id': id, 'name': name, 'players': players});
+                console.log(`Added: {${id}} ${name} (${players} players)`);
+                resetRef();
+            }else{
+                console.log(`Failed to Add: {${id}} ${name} (${players} players)`)
+            };
+        }else{
+            console.log('Please entry valid Game Data.');
+        };
+        return;
+    };
+
+    function resetRef(){
+        setGameNameRef('');
+        setMinPlayerRef('');
+        setMaxPlayerRef('');
     };
 
 
@@ -89,10 +109,10 @@ export default function GameCollection(){
                     <Text style={styles.inputLabel}>Game Name</Text>
                     <TextInput
                         style={styles.inputbox}
-                        value={gameRef}
+                        value={gameNameRef}
                         placeholder="Name" 
                         inputMode="text"
-                        onChangeText={(e)=>setGameRef(e)}
+                        onChangeText={(e)=>setGameNameRef(e)}
                     />
                     <Text style={styles.inputLabel}>Number of Players</Text>
                     <View style={styles.inputRange}>
@@ -116,6 +136,7 @@ export default function GameCollection(){
                     </Pressable>
                 </View>
                 <View style={styles.listContainer}>
+                    <Text style={styles.h1}>Game List</Text>
                     <FlatList data={gameList}
                         renderItem={renderItem}
                         ItemSeparatorComponent={Separator}/>
@@ -153,6 +174,7 @@ const styles = StyleSheet.create({
     inputContainer:{
         //flexDirection: 'row',
         justifyContent: 'space-between',
+        alignItems: 'center',
     },
     inputLabel:{
         fontSize: 18,
