@@ -19,16 +19,20 @@ const gameList = [
 //future feature edit existing entry in list & save edits to game db
 //Scope issue: has to be outside of default function if called in Item Component
 function editItem(id){
-    return console.log(`Edit ${id} clicked.`);
+    console.log(`Edit ${id} clicked.`);
+    
+    return;
 };
 
+/* future edit code.
+        <Pressable onPress={() => editItem(id)}>
+            <Text style={{fontStyle: 'italic'}}> Edit </Text>
+        </Pressable>
+*/
 const Item = ({id,name,players}) => (
     <View style={styles.itemContainer}>
         <Text style={styles.itemName}>{name} </Text>
         <Text style={styles.itemDetails}>({players} players)</Text>
-        <Pressable onPress={() => editItem(id)}>
-            <Text style={{fontStyle: 'italic'}}> Edit </Text>
-        </Pressable>
     </View>
 );
 
@@ -139,7 +143,8 @@ export default function GameCollection(){
                     <Text style={styles.h1}>Game List</Text>
                     <FlatList data={gameList}
                         renderItem={renderItem}
-                        ItemSeparatorComponent={Separator}/>
+                        ItemSeparatorComponent={Separator}
+                        nestedScrollEnabled/>
                 </View>
             </View>
         </View>

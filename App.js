@@ -14,7 +14,7 @@ export default function App() {
     return(
         <SafeAreaProvider initialMetrics={initialWindowMetrics}>
             <NavigationContainer>
-                <Stack.Navigator initialRouteName='Projects'>
+                <Stack.Navigator initialRouteName='Home'>
                     <Stack.Screen 
                         name='Home'
                         component={Home}

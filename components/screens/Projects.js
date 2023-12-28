@@ -1,4 +1,3 @@
-import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -7,6 +6,8 @@ import Nav from './Nav';
 import SimpleCalc from './Projects/SimpleCalc';
 import WildPet from './Projects/WildPet';
 import GameCollection from './Projects/GameCollection';
+import Connect4App from './Projects/Connect4App';
+
 
 export default function Projects({navigation}){
 
@@ -15,8 +16,9 @@ export default function Projects({navigation}){
             <View style={styles.main}>
                 <Nav navigation={navigation}/>
                 <View style={styles.body}>
-                    <Text style={styles.h1}>This is the Projects Page. </Text>
-                    <ScrollView indicatorStyle='black'>
+                    <Text style={styles.h1}>A Sample Of My Projects </Text>
+                    <ScrollView style={{maxHeight: 600}} indicatorStyle='black' nestedScrollEnabled>
+                        <View style={styles.entry}><Connect4App/></View>
                         <View style={styles.entry}><SimpleCalc/></View>
                         <View style={styles.entry}><WildPet/></View>
                         <View style={styles.entry}><GameCollection/></View>
