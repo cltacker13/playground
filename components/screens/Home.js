@@ -65,6 +65,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start', 
     }, 
     body:{
+        maxWidth: 600,
         margin: 10,
         paddingHorizontal: 15,
         textAlign: 'left',

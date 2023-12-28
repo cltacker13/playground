@@ -11,7 +11,7 @@ export default function About({navigation}){
             <View style={styles.main}>
                 <Nav navigation={navigation}/>
                 <View style={styles.body}>
-                    <ScrollView style={{maxHeight: 600}} indicatorStyle='black'>
+                    <ScrollView style={{maxHeight: 600, padding:5}} indicatorStyle='black'>
                         <Text style={styles.bodyText}>
                             <Text style={{fontWeight: 'bold'}}>About Me & This Playground Space</Text>
                             <Text style={styles.bodyText}>
@@ -47,6 +47,7 @@ const styles = StyleSheet.create({
         paddingBottom: 5,
     }, 
     body:{
+        maxWidth: 600,
         margin: 10,
         paddingHorizontal: 15,
         textAlign: 'left',
