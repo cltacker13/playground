@@ -20,7 +20,6 @@ const gameList = [
 //Scope issue: has to be outside of default function if called in Item Component
 function editItem(id){
     console.log(`Edit ${id} clicked.`);
-    
     return;
 };
 
@@ -30,7 +29,7 @@ function editItem(id){
         </Pressable>
 */
 const Item = ({id,name,players}) => (
-    <View style={styles.itemContainer}>
+    <View key={id} style={styles.itemContainer}>
         <Text style={styles.itemName}>{name} </Text>
         <Text style={styles.itemDetails}>({players} players)</Text>
     </View>
@@ -114,7 +113,7 @@ export default function GameCollection(){
                     <TextInput
                         style={styles.inputbox}
                         value={gameNameRef}
-                        placeholder="Name" 
+                        placeholder="Name of New Game" 
                         inputMode="text"
                         onChangeText={(e)=>setGameNameRef(e)}
                     />
@@ -180,11 +179,14 @@ const styles = StyleSheet.create({
         //flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        marginVertical: 20,
     },
     inputLabel:{
         fontSize: 18,
     },
     inputbox:{
+        minWidth: 175,
+        textAlign: 'center',
         margin: 5,
         borderStyle: 'solid',
         borderWidth: 1,
@@ -196,6 +198,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     inputNumBox:{
+        textAlign: 'center',
         margin: 5,
         width: 60,
         borderStyle: 'solid',
