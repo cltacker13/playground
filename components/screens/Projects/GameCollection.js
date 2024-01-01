@@ -1,8 +1,19 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TextInput, Pressable, FlatList } from 'react-native';
 
+//add and set up firebase realtime database.
+import { initializeApp} from 'firebase/app';
+import { getDatabase, ref, push, onValue } from 'firebase/database';
+const appSettings = {
+    databaseURL: "https://collections-d0f5c-default-rtdb.firebaseio.com/"
+};
+const firebaseApp = initializeApp(appSettings);
+const database = getDatabase(firebaseApp);
+const gamesDB = ref(database, "Games");
+
+
 //sample of game data
-const gameList = [
+/*const gameList = [
     {id: '100001', name: 'Catan', players: '2-4'},
     {id: '100002', name: 'Contagion', players: '2-5'},
     {id: '100003', name: 'Millebornes', players: '2-4'},
@@ -14,7 +25,7 @@ const gameList = [
     {id: '100009', name: 'Tsuro', players: '2-8'},
     {id: '100010', name: 'Villianous', players: '2-4'},
     {id: '100011', name: 'WingSpan', players: '1-5'},
-];
+];*/
 
 //future feature edit existing entry in list & save edits to game db
 //Scope issue: has to be outside of default function if called in Item Component
@@ -40,9 +51,43 @@ const Separator = () => <View style={styles.separator} />
 export default function GameCollection(){
     const [visible, setVisible] = useState(false);
     const [addVisible, setAddVisible] = useState(false);
+    const [gameData, setGameData] = useState([]);
     const [gameNameRef, setGameNameRef] = useState('');
     const [minPlayerRef, setMinPlayerRef] = useState('');
     const [maxPlayerRef, setMaxPlayerRef] = useState('');
+
+    //show up to date db data to screen
+    useEffect(() => {
+        (async () => {
+            try {
+                //get current "snapshot" of data from db
+                //console.log('Local #: ',gameData.length);
+                onValue(gamesDB, function(snapshot) {
+                    let dbGamesArr = [];
+                    gamesSnapshot = Object.entries(snapshot.val()).map((game)=>{
+                        dbGamesArr.push({
+                            id: game[0],
+                            gameID: game[1][0],
+                            name: game[1][1].name,
+                            players: game[1][1].players 
+                        })
+                    }); 
+                    //console.log('game snapshot:',Object.entries(snapshot.val()));                 
+                    //console.log('2db games list: ',dbGamesArr);
+                    //console.log('db #: ',dbGamesArr.length);
+                    
+                    //update local list with db list
+                    console.log(`Local #: ${gameData.length} & db #: ${dbGamesArr.length}. Making List.`);
+                    //console.log('Made List: ',dbGamesArr);
+                    setGameData(dbGamesArr);
+                }) 
+            } catch (err) {
+                // Handle error 
+                console.log(err.message); 
+            } 
+        })();
+      }, []);
+    
 
     function toggleVisibility(){
         return setVisible(!visible);
@@ -54,38 +99,40 @@ export default function GameCollection(){
 
     function renderItem({item}){
         return(
-            <Item id={item.id} name={item.name} players={item.players}/>
+            <Item id={item.id} name={item.name} players={item.players} />
         );
     };
 
     //future feature to sort list alphabetically by name
     function sortListByName(list){
-        var sortedList = [];
+        let sortedList = [];
         return sortedList;
     }
 
-    //future feature add new entry to list & save to game db
+    //add new entry to game db
     function addItem(){
         //entry error handling.
         if(gameNameRef.trim() !== '' && minPlayerRef > 0 && maxPlayerRef >= minPlayerRef){
-            var id = Number(gameList[gameList.length-1].id)+1;
-            var name = gameNameRef;
+            let gameID = Number(gameData[gameData.length-1].gameID)+1;
+            let name = gameNameRef;
+            let players = '';
             if(minPlayerRef === maxPlayerRef){
-                var players = `${minPlayerRef}`;
+                players = `${minPlayerRef}`;
             }else{
-                var players = `${minPlayerRef}-${maxPlayerRef}`;
-            };
-            //set as true when db accepts new values.
-            var saved = true;
-            if(saved){
-                gameList.push({'id': id, 'name': name, 'players': players});
-                console.log(`Added: {${id}} ${name} (${players} players)`);
+                players = `${minPlayerRef}-${maxPlayerRef}`;
+            }
+            const newGameData = [gameID,{name:name,players:players}]
+            //save to db
+            try {
+                push(gamesDB, newGameData);
+                //console.log(`Added: {${gameID}} ${name} (${players} players)`);
                 resetRef();
-            }else{
-                console.log(`Failed to Add: {${id}} ${name} (${players} players)`)
+            } catch (error) {
+                console.log(`Failed to Add: {${gameID}} ${name} (${players} players)`)
             };
+            
         }else{
-            console.log('Please enter valid Game Data.');
+            console.log('Please enter valid Game Information.');
         };
         return;
     };
@@ -140,7 +187,7 @@ export default function GameCollection(){
                 </View>
                 <View style={styles.listContainer}>
                     <Text style={styles.h1}>Game List</Text>
-                    <FlatList data={gameList}
+                    <FlatList data={gameData}
                         renderItem={renderItem}
                         ItemSeparatorComponent={Separator}
                         nestedScrollEnabled/>
