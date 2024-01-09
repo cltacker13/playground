@@ -30,8 +30,13 @@ const gamesDB = ref(database, "Games");
 //future feature edit existing entry in list & save edits to game db
 //Scope issue: has to be outside of default function if called in Item Component
 function editItem(id){
-    console.log(`Edit ${id} clicked.`);
-    return;
+    let userAccess = true;
+    if(userAccess){
+        console.log(`Edit ${id} clicked.`);
+        return;
+    }else{
+        console.log(`You don't have permission to edit.`);
+    }
 };
 
 /* future edit code.
@@ -76,9 +81,24 @@ export default function GameCollection(){
                     //console.log('2db games list: ',dbGamesArr);
                     //console.log('db #: ',dbGamesArr.length);
                     
-                    //update local list with db list
                     console.log(`Local #: ${gameData.length} & db #: ${dbGamesArr.length}. Making List.`);
                     //console.log('Made List: ',dbGamesArr);
+
+                    //sort game list
+                    dbGamesArr.sort((a,b) => {
+                        const nameA = a.name.toUpperCase();
+                        const nameB = b.name.toUpperCase();
+                        if(nameA < nameB){
+                            return -1;
+                        }
+                        if(nameA > nameB){
+                            return 1;
+                        }
+                        return 0;
+                    });
+                    //console.log('Sorted List: ',dbGamesArr);
+
+                    //update local list with db list
                     setGameData(dbGamesArr);
                 }) 
             } catch (err) {
@@ -103,38 +123,38 @@ export default function GameCollection(){
         );
     };
 
-    //future feature to sort list alphabetically by name
-    function sortListByName(list){
-        let sortedList = [];
-        return sortedList;
-    }
-
     //add new entry to game db
     function addItem(){
-        //entry error handling.
-        if(gameNameRef.trim() !== '' && minPlayerRef > 0 && maxPlayerRef >= minPlayerRef){
-            let gameID = Number(gameData[gameData.length-1].gameID)+1;
-            let name = gameNameRef;
-            let players = '';
-            if(minPlayerRef === maxPlayerRef){
-                players = `${minPlayerRef}`;
+        let userAccess = true;
+        if(userAccess){
+            //entry error handling.
+            if(gameNameRef.trim() !== '' && minPlayerRef > 0 && maxPlayerRef >= minPlayerRef){
+                let gamesByGameID = gameData.sort((a,b)=> a.gameID - b.gameID);
+                let gameID = Number(gamesByGameID[gameData.length-1].gameID)+1;
+                let name = gameNameRef;
+                let players = '';
+                if(minPlayerRef === maxPlayerRef){
+                    players = `${minPlayerRef}`;
+                }else{
+                    players = `${minPlayerRef}-${maxPlayerRef}`;
+                }
+                const newGameData = [gameID,{name:name,players:players}]
+                //save to db
+                try {
+                    push(gamesDB, newGameData);
+                    //console.log(`Added: {${gameID}} ${name} (${players} players)`);
+                    resetRef();
+                } catch (error) {
+                    console.log(`Failed to Add: {${gameID}} ${name} (${players} players)`)
+                };
+                
             }else{
-                players = `${minPlayerRef}-${maxPlayerRef}`;
-            }
-            const newGameData = [gameID,{name:name,players:players}]
-            //save to db
-            try {
-                push(gamesDB, newGameData);
-                //console.log(`Added: {${gameID}} ${name} (${players} players)`);
-                resetRef();
-            } catch (error) {
-                console.log(`Failed to Add: {${gameID}} ${name} (${players} players)`)
+                console.log('Please enter valid Game Information.');
             };
-            
+            return;
         }else{
-            console.log('Please enter valid Game Information.');
+            console.log(`You don't have permission to add.`);
         };
-        return;
     };
 
     function resetRef(){
