@@ -29,6 +29,10 @@ onAuthStateChanged(auth, (user) => {
     }
 })
 
+//project name and details
+export const gameCollectionTitle = 'Game Collection List';
+export const gameCollectionDesc = 'Starting point for a collection database of games and more. ';
+
 
 //sample of game data
 /*const gameList = [
@@ -83,8 +87,8 @@ const Item = ({id,name,players}) => (
 
 const Separator = () => <View style={styles.separator} />
 
-export default function GameCollection(){
-    const [visible, setVisible] = useState(false);
+export default function GameCollection({navigation}){
+    const [visible, setVisible] = useState(true);
     const [addVisible, setAddVisible] = useState(false);
     const [gameData, setGameData] = useState([]);
     const [gameNameRef, setGameNameRef] = useState('');
@@ -198,11 +202,10 @@ export default function GameCollection(){
 
     return(
         <View style={styles.body}>
-            <Pressable onPress={toggleVisibility}>
-                <Text style={styles.h1}>Game Collection List</Text>
-                <Text style={styles.descText}>Starting point for a collection database of games and more. </Text>
-                <Text style={{fontStyle: 'italic'}}>Click to view.</Text>
-            </Pressable>
+            <View>
+                <Text style={styles.h1}>{gameCollectionTitle}</Text>
+                <Text style={styles.descText}>{gameCollectionDesc}</Text>
+            </View>
             <View style={visible ? styles.showGames : styles.hide}>
                 <Pressable onPress={toggleAddVisibility}>
                     <Text style={{fontStyle: 'italic'}}>Click to Add New Game</Text>
@@ -264,6 +267,7 @@ const styles = StyleSheet.create({
     },
     descText:{
         fontSize: 16,
+        marginBottom: 20,
     },
     hide:{
         display: 'none',

@@ -2,8 +2,11 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View, Image } from 'react-native';
 import { useState } from 'react';
 
+export const wildPetTitle = 'My Wild Pet';
+export const wildPetDesc = 'Personal task, inspired by a popular digital pet game. ';
+
 export default function WildPet(){
-    const [visible, setVisible] = useState(false);
+    const [visible, setVisible] = useState(true);
    
     function toggleVisibility(){
         return setVisible(!visible);
@@ -97,11 +100,11 @@ export default function WildPet(){
  
     return(
         <View style={styles.body}>
-            <Pressable onPress={toggleVisibility}>
-                <Text style={styles.h1}>My Wild Pet</Text>
-                <Text style={styles.descText}>Personal task, inspired by a popular digital pet game. </Text>
+            <View>
+                <Text style={styles.h1}>{wildPetTitle}</Text>
+                <Text style={styles.descText}>{wildPetDesc}</Text>
                 <Text style={{fontStyle: 'italic'}}>Click to view.</Text>
-            </Pressable>
+            </View>
             <View style={visible ? styles.showPet : styles.hide}>
                 <View style={styles.petContainer}>
                     <Text style={styles.petText}>{myPet.petName}</Text>

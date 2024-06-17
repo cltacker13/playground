@@ -18,6 +18,8 @@ const OpenURLButton = ({url,children}) => {
             </Pressable>)
 };
 
+export const connect4AppTitle = 'The Connect 4 App';
+export const connect4AppDesc = 'Started as a CodeWars kata challenge to create the backend functionality, then I made this basic user interface for it. ';
 
 export default function Connect4App(){
     const [visible, setVisible] = useState(false);
@@ -28,8 +30,8 @@ export default function Connect4App(){
 
 return(
         <View style={styles.body}>
-            <Text style={styles.h1}>The Connect 4 App</Text>
-            <Text style={styles.descText}>Started as a CodeWars kata challenge to create the backend functionality, then I made this basic user interface for it. </Text>
+            <Text style={styles.h1}>{connect4AppTitle}</Text>
+            <Text style={styles.descText}>{connect4AppDesc}</Text>
             <OpenURLButton url={connect4URL}></OpenURLButton>
         </View>
     );

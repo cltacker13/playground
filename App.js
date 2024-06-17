@@ -7,6 +7,7 @@ import Home from './components/screens/Home';
 import Profile from './components/screens/Profile';
 import About from './components/screens/About';
 import Projects from './components/screens/Projects';
+import ProjectView from './components/screens/ProjectView';
 
 const Stack = createNativeStackNavigator();
 
@@ -34,6 +35,11 @@ export default function App() {
                         name='Projects'
                         component={Projects}
                         options={{title: 'Projects'}}
+                    ></Stack.Screen>
+                    <Stack.Screen 
+                        name='ProjectView'
+                        component={ProjectView}
+                        options={{title: 'Sample Project'}}
                     ></Stack.Screen>
                 </Stack.Navigator>
             </NavigationContainer>

@@ -2,8 +2,11 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View, TextInput } from 'react-native';
 import { useState } from 'react';
 
+export const simpleCalcTitle = 'Simple Calculator';
+export const simpleCalcDesc = 'A task from a React Education Course to create the simplest working calculator. ';
+
 export default function SimpleCalc(){
-    const [visible, setVisible] = useState(false);
+    const [visible, setVisible] = useState(true);
     const [inputRef, setInputRef] = useState('');
     const [result, setResult] = useState(0); 
    
@@ -45,11 +48,11 @@ export default function SimpleCalc(){
     }; 
     return(
         <View style={styles.body}>
-            <Pressable onPress={toggleVisibility}>
-                <Text style={styles.h1}>Simple Calculator</Text>
-                <Text style={styles.descText}>A task from a React Education Course to create the simplest working calculator. </Text>
+            <View>
+                <Text style={styles.h1}>{simpleCalcTitle}</Text>
+                <Text style={styles.descText}>{simpleCalcDesc}</Text>
                 <Text style={{fontStyle: 'italic'}}>Click to view.</Text>
-            </Pressable>
+            </View>
             <View style={visible ? styles.showCalc : styles.hide}>
                 <Text style={styles.result}>
                     {result} 
