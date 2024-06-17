@@ -103,7 +103,6 @@ export default function WildPet(){
             <View>
                 <Text style={styles.h1}>{wildPetTitle}</Text>
                 <Text style={styles.descText}>{wildPetDesc}</Text>
-                <Text style={{fontStyle: 'italic'}}>Click to view.</Text>
             </View>
             <View style={visible ? styles.showPet : styles.hide}>
                 <View style={styles.petContainer}>
@@ -145,6 +144,7 @@ const styles = StyleSheet.create({
     },
     descText:{
         fontSize: 16,
+        marginBottom: 20,
     },
     hide:{
         display: 'none',

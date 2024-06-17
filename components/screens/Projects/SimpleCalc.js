@@ -51,7 +51,6 @@ export default function SimpleCalc(){
             <View>
                 <Text style={styles.h1}>{simpleCalcTitle}</Text>
                 <Text style={styles.descText}>{simpleCalcDesc}</Text>
-                <Text style={{fontStyle: 'italic'}}>Click to view.</Text>
             </View>
             <View style={visible ? styles.showCalc : styles.hide}>
                 <Text style={styles.result}>
@@ -106,6 +105,7 @@ const styles = StyleSheet.create({
     },
     descText:{
         fontSize: 16,
+        marginBottom: 20,
     },
     hide:{
         display: 'none',

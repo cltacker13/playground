@@ -10,7 +10,8 @@ import GameCollection from './Projects/GameCollection';
 
 
 export default function ProjectView({navigation,route}){
-    const projectName = route.params;
+    console.log(route);
+    const projectName = route.params.project;
     console.log(projectName);
     const getProject = (projectName) => {
         switch(projectName) {

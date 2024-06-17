@@ -21,7 +21,7 @@ export default function Projects({navigation}){
                         <View style={styles.entry}><Connect4App/></View>
                         <View style={styles.entry}>
                             <Pressable onPress={ () =>{ 
-                                navigation.navigate('ProjectView','SimpleCalc')}
+                                navigation.navigate('ProjectView',{project:'SimpleCalc'})}
                             }>
                                 <Text style={styles.h2}>{simpleCalcTitle}</Text>
                                 <Text style={styles.descText}>{simpleCalcDesc}</Text>
@@ -30,7 +30,7 @@ export default function Projects({navigation}){
                         </View>
                         <View style={styles.entry}>
                             <Pressable onPress={ () =>{ 
-                                navigation.navigate('ProjectView','WildPet')}
+                                navigation.navigate('ProjectView',{project:'WildPet'})}
                             }>
                                 <Text style={styles.h2}>{wildPetTitle}</Text>
                                 <Text style={styles.descText}>{wildPetDesc}</Text>
@@ -40,7 +40,7 @@ export default function Projects({navigation}){
                         <View style={styles.entry}>
                             <Pressable onPress={ () =>{ 
                                 //console.log('GameCollection clicked'),
-                                navigation.navigate('ProjectView','GameCollection')}
+                                navigation.navigate('ProjectView',{project:'GameCollection'})}
                             }>
                                 <Text style={styles.h2}>{gameCollectionTitle}</Text>
                                 <Text style={styles.descText}>{gameCollectionDesc}</Text>
