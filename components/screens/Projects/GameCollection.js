@@ -1,15 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TextInput, Pressable, FlatList } from 'react-native';
 
-//add and set up firebase realtime database.
-import { initializeApp} from 'firebase/app';
+/*//add and set up firebase realtime database.
+import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, push, onValue } from 'firebase/database';
 const appSettings = {
     databaseURL: "https://collections-d0f5c-default-rtdb.firebaseio.com/"
 };
 const firebaseApp = initializeApp(appSettings);
 const database = getDatabase(firebaseApp);
-const gamesDB = ref(database, "Games");
+const gamesDB = ref(database, "Games");*/
+import { onAuthStateChanged } from 'firebase/auth';
+import { push, onValue } from 'firebase/database';
+import auth from '../../firebase/Users';
+import gamesDB from '../../firebase/Games';
+
+const user = auth.currentUser;
+if(user !== null) {
+    const displayName = user.displayName;
+    const email = user.email;
+    const uid = user.uid;
+}
+onAuthStateChanged(auth, (user) => {
+    if(user){
+        console.log(`${email} is logged in.`);
+    } else {
+        console.log(`Not logged in.`);
+    }
+})
 
 
 //sample of game data
@@ -30,13 +48,22 @@ const gamesDB = ref(database, "Games");
 //future feature edit existing entry in list & save edits to game db
 //Scope issue: has to be outside of default function if called in Item Component
 function editItem(id){
+    console.log(`Edit ${id} clicked.`);
+    onAuthStateChanged(auth, (user) => {
+        if(user){
+            console.log(user.email,`You have permission to edit ${id}.`);
+        } else {
+            console.log(`You don't have permission to edit.`);
+        }
+    })
+    /*
     let userAccess = true;
     if(userAccess){
         console.log(`Edit ${id} clicked.`);
         return;
     }else{
         console.log(`You don't have permission to edit.`);
-    }
+    }*/
 };
 
 /* future edit code.
@@ -48,6 +75,9 @@ const Item = ({id,name,players}) => (
     <View key={id} style={styles.itemContainer}>
         <Text style={styles.itemName}>{name} </Text>
         <Text style={styles.itemDetails}>({players} players)</Text>
+        <Pressable onPress={() => editItem(id)}>
+            <Text style={{fontStyle: 'italic'}}> Edit </Text>
+        </Pressable>
     </View>
 );
 
@@ -64,12 +94,14 @@ export default function GameCollection(){
     //show up to date db data to screen
     useEffect(() => {
         (async () => {
+            console.log('gamesDB: ', gamesDB);
             try {
                 //get current "snapshot" of data from db
                 //console.log('Local #: ',gameData.length);
                 onValue(gamesDB, function(snapshot) {
                     let dbGamesArr = [];
-                    gamesSnapshot = Object.entries(snapshot.val()).map((game)=>{
+                    //console.log("dbGamesArr: ",dbGamesArr)
+                    let gamesSnapshot = Object.entries(snapshot.val()).map((game)=>{
                         dbGamesArr.push({
                             id: game[0],
                             gameID: game[1][0],
