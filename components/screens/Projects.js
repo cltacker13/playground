@@ -7,6 +7,7 @@ import { simpleCalcTitle, simpleCalcDesc } from './Projects/SimpleCalc';
 import { wildPetTitle, wildPetDesc } from './Projects/WildPet';
 import { gameCollectionTitle, gameCollectionDesc } from './Projects/GameCollection';
 import Connect4App from './Projects/Connect4App';
+import { diceRollDesc, diceRollTitle } from './Projects/DiceRoll';
 
 
 export default function Projects({navigation}){
@@ -44,6 +45,15 @@ export default function Projects({navigation}){
                             }>
                                 <Text style={styles.h2}>{gameCollectionTitle}</Text>
                                 <Text style={styles.descText}>{gameCollectionDesc}</Text>
+                                <Text style={{fontStyle: 'italic'}}>Click to view.</Text>
+                            </Pressable>
+                        </View>
+                        <View style={styles.entry}>
+                            <Pressable onPress={ () =>{ 
+                                navigation.navigate('ProjectView',{project:'DiceRoll'})}
+                            }>
+                                <Text style={styles.h2}>{diceRollTitle}</Text>
+                                <Text style={styles.descText}>{diceRollDesc}</Text>
                                 <Text style={{fontStyle: 'italic'}}>Click to view.</Text>
                             </Pressable>
                         </View>

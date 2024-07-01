@@ -6,11 +6,12 @@ import { StatusBar } from 'expo-status-bar';
 import SimpleCalc from './Projects/SimpleCalc';
 import WildPet from './Projects/WildPet';
 import GameCollection from './Projects/GameCollection';
+import DiceRoll from './Projects/DiceRoll';
 //import Connect4App from './Projects/Connect4App';
 
 
 export default function ProjectView({navigation,route}){
-    console.log(route);
+    //console.log(route);
     const projectName = route.params.project;
     console.log(projectName);
     const getProject = (projectName) => {
@@ -24,8 +25,12 @@ export default function ProjectView({navigation,route}){
             case 'GameCollection':
                 return(<GameCollection/>)
                 break;
+            case 'DiceRoll':
+                return(<DiceRoll/>)
+                break;
             default:
-                // code block
+                console.log('No Project Selected');
+                return(<Text>No Project Selected</Text>)
             } }
 
     return(
