@@ -16,7 +16,8 @@ import auth from '../../firebase/Users';
 import gamesDB from '../../firebase/Games';
 
 const user = auth.currentUser;
-if(user !== null) {
+console.log(auth)
+if(user) {
     const displayName = user.displayName;
     const email = user.email;
     const uid = user.uid;

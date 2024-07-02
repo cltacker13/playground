@@ -34,6 +34,13 @@ export default function Nav({navigation}){
                     }
                     title="Go to Projects Page"
                 ><Text style={styles.buttonLabel}>Projects</Text></Pressable>
+                <Pressable style={styles.navButton} 
+                    onPress={() =>
+                        navigation.navigate('Profile')
+                    }
+                    title="Go to Profile Page"
+                ><Text style={styles.buttonLabel}>Profile</Text></Pressable>
+
             </View>
         </View>
     );
