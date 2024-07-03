@@ -1,5 +1,5 @@
 import auth from "../firebase/Users";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, signOut, onAuthStateChanged } from "firebase/auth";
 
 import React, { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -25,16 +25,15 @@ export default function Profile({navigation}){
     const isEmailValid = validateEmail(email);
     const [password, onPasswordChange] = useState('');
     const isPasswordValid = validatePassword(password);
-    const [isFormValid, updateIsFormValid] = useState(false);
+    const isFormValid = (isEmailValid && isPasswordValid);
     const [isLoggedIn, updateIsLoggedIn] = useState(false);
-    console.log(auth);
-    console.log(isEmailValid,isPasswordValid,isFormValid)
-    const user = auth.currentUser;//maybe user instead of isLoggedIn for conditional render
+    const [returningUser, toggleReturningUser] = useState(false);
+    const currentUser = auth.currentUser;
+    const [displayName, updateDisplayName] = (currentUser ? useState(currentUser.displayName) : useState(''));
+    const [username, onUsernameChange] = (currentUser ? useState(currentUser.displayName) : useState(''));
+    //console.log(currentUser);
+    //console.log(isEmailValid,isPasswordValid,isFormValid)
     
-    if(isEmailValid && isPasswordValid){
-        updateIsFormValid(true);
-    }
-
     const inlineEmailValidation = () => {
         if(!isEmailValid){
             console.log('Invalid Email:',email)
@@ -49,40 +48,65 @@ export default function Profile({navigation}){
     }
 
     const signUp = async () => {
-        createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-            //Sign up
-            const user = userCredential.user;
-            updateIsLoggedIn(true);    
-        })
-        .catch((error) => {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-        });
+        if(isFormValid){
+            createUserWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                //Sign up
+                const user = userCredential.user;
+                updateIsLoggedIn(true);  
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+            });
+        }else{
+            console.log('Invalid Email/Password');
+        }
     }
     
     const logIn = async () => {
-        signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-            //Log in
-            const user = userCredential.user;
-            updateIsLoggedIn(true);    
-        })
-        .catch((error) => {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-        });
+        if(isFormValid){
+            signInWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                //Log in
+                const user = userCredential.user;
+                updateIsLoggedIn(true);  
+                updateDisplayName(user.displayName);  
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+            });
+        }else{
+            console.log('Invalid Email/Password');
+        }
     }
     
     const logOut = async () => {
         signOut(auth)
         .then(() => {
             //Log out success
+            console.log('Logged Out');
             updateIsLoggedIn(false);
         }).catch((error) => {
             const errorCode = error.code;
             const errorMessage = error.message;
         });
+    }
+
+    const updateAccount = async () => {
+        if(username != ''){
+            updateProfile(auth.currentUser, {
+                displayName: username
+            }).then(() => {
+                // Profile updated!
+                updateDisplayName(username);  
+                console.log('updated username to:',username)
+            }).catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+            });
+        }
     }
     
     return(
@@ -90,15 +114,44 @@ export default function Profile({navigation}){
             <View style={styles.main}>
                 <Nav navigation={navigation}/>
                 <View style={styles.body}>
-                    {isLoggedIn ? 
-                    <Text style={styles.bodyText}>My Profile Page </Text>
+                    {(currentUser || isLoggedIn) ? 
+                    <>
+                    <Text style={styles.h1}>My Profile Page</Text>
+                    <Text style={styles.bodyText}>Welcome Back, {displayName}!</Text>
+                    <Text style={styles.formLabel}>Username</Text>
+                    <TextInput
+                        style={styles.inputBox}
+                        onChangeText={onUsernameChange}
+                        value={username}
+                        placeholder="Update your username"
+                        keyboardType='default'
+                    />
+                    <Pressable style={styles.saveButton} 
+                        onPress={() => {
+                            console.log(username),
+                            updateAccount()
+                        }}
+                        title="Update Account Info"
+                    >
+                        <Text style={styles.buttonLabel}>Save</Text>
+                    </Pressable>
+                    <Pressable style={styles.logOutButton} 
+                        onPress={() => {
+                            console.log(email,password),
+                            logOut()
+                        }}
+                        title="Log Out of Account"
+                    >
+                        <Text style={styles.buttonLabel}>Log Out</Text>
+                    </Pressable>
+                    </>
                     :
-                    <View>
-                        <Text style={styles.bodyText}>Create Account or Log In </Text>
+                    <View style={styles.formContainer}>
+                        <Text style={styles.h1}>Create Account or Log In </Text>
                         <Text style={styles.formLabel}>Email</Text>
                         <TextInput
                             style={styles.inputBox}
-                            onChangeText={onEmailChange}//rendering too many times with onchange
+                            onChangeText={onEmailChange}
                             value={email}
                             placeholder="Type your email"
                             keyboardType='email-address'
@@ -107,21 +160,53 @@ export default function Profile({navigation}){
                         <Text style={styles.formLabel}>Password</Text>
                         <TextInput
                             style={styles.inputBox}
-                            onChangeText={onPasswordChange}//rendering too many times with onchange
+                            onChangeText={onPasswordChange}
                             value={password}
                             placeholder="Type your pasword"
                             keyboardType='visible-password'
                             onEndEditing={inlinePasswordValidation}
                         />
+                        {!returningUser ? 
+                        <>
                         <Pressable style={isFormValid ? styles.signUpButton : styles.invalidFormButton} 
-                            onPress={() =>
-                                console.log(email,password)
-                            }
+                            onPress={() => {
+                                console.log(email,password),
+                                signUp()
+                            }}
                             title="Create New Account"
                         >
                             <Text style={styles.buttonLabel}>Sign Up</Text>
                         </Pressable>
-                
+                        <Pressable style={styles.textButton} 
+                            onPress={() =>
+                                toggleReturningUser(true)
+                            }
+                        >
+                            <Text style={styles.bodyText}>Returning User?</Text>
+                            <Text style={styles.bodyText}>Click to Log Back In.</Text>
+                        </Pressable>
+                        </>
+                        :
+                        <>
+                        <Pressable style={isFormValid ? styles.logInButton : styles.invalidFormButton} 
+                            onPress={() => {
+                                console.log(email,password),
+                                logIn()
+                            }}
+                            title="Log In to Account"
+                        >
+                            <Text style={styles.buttonLabel}>Log In</Text>
+                        </Pressable>
+                        <Pressable style={styles.textButton} 
+                            onPress={() =>
+                                toggleReturningUser(false)
+                            }
+                        >
+                            <Text style={styles.bodyText}>New User?</Text>
+                            <Text style={styles.bodyText}>Click to Sign Up.</Text>
+                        </Pressable>
+                        </>
+                        }
                     </View>
                     }
                 </View>
@@ -147,29 +232,62 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         textAlign: 'left',
     },
+    h1:{
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginVertical: 5,
+    },
     bodyText:{
         fontSize: 18,
     },
     formContainer:{
-
+        alignItems: 'center',
     },
     formLabel:{
+        alignSelf: 'flex-start',
         fontSize: 16,
         margin: 2,
     },
     inputBox:{
-        width: 200,
+        width: 250,
         height: 35,
         borderColor: 'black',
         borderWidth: 1,
         padding: 2,
         margin: 2,
     },
+    logInButton:{
+        borderRadius: 10, 
+        height: 35,
+        width: 120,
+        backgroundColor: 'blue',
+        alignItems: 'center',
+        justifyContent: 'center',
+        margin: 1,
+    },
     signUpButton:{
         borderRadius: 10, 
         height: 35,
         width: 120,
         backgroundColor: 'green',
+        alignItems: 'center',
+        justifyContent: 'center',
+        margin: 1,
+    },
+    saveButton:{
+        borderRadius: 10, 
+        height: 35,
+        width: 120,
+        backgroundColor: 'green',
+        alignItems: 'center',
+        justifyContent: 'center',
+        margin: 1,
+    },
+    logOutButton:{
+        borderRadius: 10, 
+        height: 35,
+        width: 120,
+        backgroundColor: 'red',
         alignItems: 'center',
         justifyContent: 'center',
         margin: 1,
@@ -187,5 +305,14 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontWeight: 'bold',
         fontSize: 20,
+    },
+    textButton:{
+        height: 50,
+        padding: 5,
+        marginVertical: 5,
+        textAlign: 'center',
+        borderColor: 'gray',
+        borderWidth: 1,
+        borderStyle: 'dashed',
     },
 });

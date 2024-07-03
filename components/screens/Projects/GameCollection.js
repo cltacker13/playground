@@ -1,30 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TextInput, Pressable, FlatList } from 'react-native';
 
-/*//add and set up firebase realtime database.
-import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, push, onValue } from 'firebase/database';
-const appSettings = {
-    databaseURL: "https://collections-d0f5c-default-rtdb.firebaseio.com/"
-};
-const firebaseApp = initializeApp(appSettings);
-const database = getDatabase(firebaseApp);
-const gamesDB = ref(database, "Games");*/
 import { onAuthStateChanged } from 'firebase/auth';
 import { push, onValue } from 'firebase/database';
 import auth from '../../firebase/Users';
 import gamesDB from '../../firebase/Games';
 
-const user = auth.currentUser;
-console.log(auth)
-if(user) {
-    const displayName = user.displayName;
-    const email = user.email;
-    const uid = user.uid;
-}
+
 onAuthStateChanged(auth, (user) => {
     if(user){
-        console.log(`${email} is logged in.`);
+        console.log(`${user.displayName} is logged in.`);
     } else {
         console.log(`Not logged in.`);
     }
@@ -56,7 +41,7 @@ function editItem(id){
     console.log(`Edit ${id} clicked.`);
     onAuthStateChanged(auth, (user) => {
         if(user){
-            console.log(user.email,`You have permission to edit ${id}.`);
+            console.log(user.displayName,`You have permission to edit ${id}.`);
         } else {
             console.log(`You don't have permission to edit.`);
         }
@@ -80,9 +65,13 @@ const Item = ({id,name,players}) => (
     <View key={id} style={styles.itemContainer}>
         <Text style={styles.itemName}>{name} </Text>
         <Text style={styles.itemDetails}>({players} players)</Text>
+        {auth.currentUser ?
+        <>
         <Pressable onPress={() => editItem(id)}>
             <Text style={{fontStyle: 'italic'}}> Edit </Text>
         </Pressable>
+        </>
+        : <></>}
     </View>
 );
 
@@ -95,6 +84,9 @@ export default function GameCollection({navigation}){
     const [gameNameRef, setGameNameRef] = useState('');
     const [minPlayerRef, setMinPlayerRef] = useState('');
     const [maxPlayerRef, setMaxPlayerRef] = useState('');
+    const currentUser = auth.currentUser;
+    //console.log(currentUser);
+    
 
     //show up to date db data to screen
     useEffect(() => {
@@ -162,8 +154,8 @@ export default function GameCollection({navigation}){
 
     //add new entry to game db
     function addItem(){
-        let userAccess = true;
-        if(userAccess){
+        //let userAccess = true;
+        if(auth.currentUser){
             //entry error handling.
             if(gameNameRef.trim() !== '' && minPlayerRef > 0 && maxPlayerRef >= minPlayerRef){
                 let gamesByGameID = gameData.sort((a,b)=> a.gameID - b.gameID);
@@ -208,6 +200,8 @@ export default function GameCollection({navigation}){
                 <Text style={styles.descText}>{gameCollectionDesc}</Text>
             </View>
             <View style={visible ? styles.showGames : styles.hide}>
+                {currentUser ?
+                <>
                 <Pressable onPress={toggleAddVisibility}>
                     <Text style={{fontStyle: 'italic'}}>Click to Add New Game</Text>
                 </Pressable>
@@ -241,6 +235,9 @@ export default function GameCollection({navigation}){
                         <Text style={styles.addButtonLabel}>+</Text>
                     </Pressable>
                 </View>
+                </>
+                : <></>
+                }
                 <View style={styles.listContainer}>
                     <Text style={styles.h1}>Game List</Text>
                     <FlatList data={gameData}
