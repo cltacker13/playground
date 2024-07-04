@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.js": "/playground/static/js/main.15d1a4ff.js",
-    "static/js/900.44ca0807.js": "/playground/static/js/900.44ca0807.js",
+    "main.js": "/playground/static/js/main.b7f1a13a.js",
+    "static/js/463.f0fa77a5.js": "/playground/static/js/463.f0fa77a5.js",
     "favicon.ico": "/playground/favicon.ico",
     "static/media/tempHappywolf.png": "/playground/static/media/tempHappywolf.1fa78e29b2bb2f7b081b.png",
     "static/media/tempAngrywolf.png": "/playground/static/media/tempAngrywolf.c46bfa7dcf1b1a60a465.png",
@@ -11,11 +11,11 @@
     "favicon-16.png": "/playground/favicon-16.png",
     "manifest.json": "/playground/manifest.json",
     "serve.json": "/playground/serve.json",
-    "main.15d1a4ff.js.map": "/playground/static/js/main.15d1a4ff.js.map",
-    "900.44ca0807.js.map": "/playground/static/js/900.44ca0807.js.map"
+    "main.b7f1a13a.js.map": "/playground/static/js/main.b7f1a13a.js.map",
+    "463.f0fa77a5.js.map": "/playground/static/js/463.f0fa77a5.js.map"
   },
   "entrypoints": [
-    "static/js/900.44ca0807.js",
-    "static/js/main.15d1a4ff.js"
+    "static/js/463.f0fa77a5.js",
+    "static/js/main.b7f1a13a.js"
   ]
 }
