@@ -313,6 +313,7 @@ const styles = StyleSheet.create({
     },
     inputLabel:{
         fontSize: 18,
+        marginTop: 10,
     },
     inputbox:{
         minWidth: 175,
@@ -427,10 +428,11 @@ const styles = StyleSheet.create({
         elevation: 2,
       },
       buttonOpen: {
-        backgroundColor: '#F194FF',
+        backgroundColor: 'purple',//'#F194FF',
       },
       buttonClose: {
-        backgroundColor: '#2196F3',
+        backgroundColor: 'purple',//'#2196F3',
+        margin: 10,
       },
       textStyle: {
         color: 'white',
