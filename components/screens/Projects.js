@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { StatusBar } from 'expo-status-bar';
@@ -11,14 +11,14 @@ import { diceRollDesc, diceRollTitle } from './Projects/DiceRoll';
 
 
 export default function Projects({navigation}){
-
+    const {height, width, scale, fontScale} = useWindowDimensions();
     return(
         <SafeAreaView style={styles.container}>
             <View style={styles.main}>
                 <Nav navigation={navigation}/>
                 <View style={styles.body}>
                     <Text style={styles.h1}>A Sample Of My Projects </Text>
-                    <ScrollView style={{maxHeight: 600}} indicatorStyle='black' nestedScrollEnabled>
+                    <ScrollView style={{maxHeight: height, maxWidth: width}} indicatorStyle='black' nestedScrollEnabled>
                         <View style={styles.entry}><Connect4App/></View>
                         <View style={styles.entry}>
                             <Pressable onPress={ () =>{ 

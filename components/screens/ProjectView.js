@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { StatusBar } from 'expo-status-bar';
@@ -12,6 +12,8 @@ import DiceRoll from './Projects/DiceRoll';
 
 export default function ProjectView({navigation,route}){
     //console.log(route);
+    const {height, width, scale, fontScale} = useWindowDimensions();
+
     const projectName = route.params.project;
     console.log(projectName);
     const getProject = (projectName) => {
@@ -37,7 +39,7 @@ export default function ProjectView({navigation,route}){
         <SafeAreaView style={styles.container}>
             <View style={styles.main}>
                 <View style={styles.body}>
-                    <View style={{maxHeight: 600}}>
+                    <View style={{maxHeight: height, maxWidth: width}}>
                         {getProject(projectName)}
                     </View>
                 </View>

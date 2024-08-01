@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, TextInput, Pressable, FlatList } from 'react-native';
-
+import { StyleSheet, Text, View, TextInput, Pressable, FlatList, Modal, useWindowDimensions } from 'react-native';
 import { onAuthStateChanged } from 'firebase/auth';
 import { push, onValue } from 'firebase/database';
 import auth from '../../firebase/Users';
@@ -63,12 +62,19 @@ function editItem(id){
 */
 const Item = ({id,name,players}) => (
     <View key={id} style={styles.itemContainer}>
-        <Text style={styles.itemName}>{name} </Text>
-        <Text style={styles.itemDetails}>({players} players)</Text>
+        <View style={styles.imageBox}></View>
+        <View style={styles.itemDetailsColumn}>
+            <Text style={styles.itemName}>{name} </Text>
+            <Text style={styles.itemDetails}>({players} players)</Text>
+        </View>
         {auth.currentUser ?
         <>
-        <Pressable onPress={() => editItem(id)}>
-            <Text style={{fontStyle: 'italic'}}> Edit </Text>
+        <Pressable style={styles.editButton}
+            onPress={() => {
+                editItem(id), 
+                alert(`Editing ${id}`)
+            }}>
+            <Text style={styles.editButtonText}> Edit </Text>
         </Pressable>
         </>
         : <></>}
@@ -78,6 +84,7 @@ const Item = ({id,name,players}) => (
 const Separator = () => <View style={styles.separator} />
 
 export default function GameCollection({navigation}){
+    const {height, width, scale, fontScale} = useWindowDimensions();
     const [visible, setVisible] = useState(true);
     const [addVisible, setAddVisible] = useState(false);
     const [gameData, setGameData] = useState([]);
@@ -86,7 +93,7 @@ export default function GameCollection({navigation}){
     const [maxPlayerRef, setMaxPlayerRef] = useState('');
     const currentUser = auth.currentUser;
     //console.log(currentUser);
-    
+    const [modalVisible, setModalVisible] = useState(false);
 
     //show up to date db data to screen
     useEffect(() => {
@@ -155,7 +162,7 @@ export default function GameCollection({navigation}){
     //add new entry to game db
     function addItem(){
         //let userAccess = true;
-        if(auth.currentUser){
+        if(auth.currentUser !== null){
             //entry error handling.
             if(gameNameRef.trim() !== '' && minPlayerRef > 0 && maxPlayerRef >= minPlayerRef){
                 let gamesByGameID = gameData.sort((a,b)=> a.gameID - b.gameID);
@@ -171,6 +178,7 @@ export default function GameCollection({navigation}){
                 //save to db
                 try {
                     push(gamesDB, newGameData);
+                    alert(`Added: {${gameID}} ${name} (${players} players)`);
                     //console.log(`Added: {${gameID}} ${name} (${players} players)`);
                     resetRef();
                 } catch (error) {
@@ -185,6 +193,7 @@ export default function GameCollection({navigation}){
             console.log(`You don't have permission to add.`);
         };
     };
+
 
     function resetRef(){
         setGameNameRef('');
@@ -202,43 +211,63 @@ export default function GameCollection({navigation}){
             <View style={visible ? styles.showGames : styles.hide}>
                 {currentUser ?
                 <>
-                <Pressable onPress={toggleAddVisibility}>
-                    <Text style={{fontStyle: 'italic'}}>Click to Add New Game</Text>
+                <Pressable style={[styles.button, styles.buttonOpen]}
+                    onPress={()=> {toggleAddVisibility, setModalVisible(true)}}>
+                    <Text style={styles.textStyle}>Add New Game</Text>
                 </Pressable>
-                <View style={addVisible ? styles.inputContainer : styles.hide}>
-                    <Text style={styles.inputLabel}>Game Name</Text>
-                    <TextInput
-                        style={styles.inputbox}
-                        value={gameNameRef}
-                        placeholder="Name of New Game" 
-                        inputMode="text"
-                        onChangeText={(e)=>setGameNameRef(e)}
-                    />
-                    <Text style={styles.inputLabel}>Number of Players</Text>
-                    <View style={styles.inputRange}>
-                    <TextInput
-                        style={styles.inputNumBox}
-                        value={minPlayerRef}
-                        placeholder="Min #" 
-                        inputMode="numeric"
-                        onChangeText={(e)=>setMinPlayerRef(e)}
-                    />
-                    <TextInput
-                        style={styles.inputNumBox}
-                        value={maxPlayerRef}
-                        placeholder="Max #" 
-                        inputMode="numeric"
-                        onChangeText={(e)=>setMaxPlayerRef(e)}
-                    />
-                    </View>
-                    <Pressable style={styles.addButton} onPress={addItem}>
-                        <Text style={styles.addButtonLabel}>+</Text>
-                    </Pressable>
+                <View style={styles.centeredView}>
+                    <Modal
+                        animationType="slide"
+                        transparent={true}
+                        visible={modalVisible}
+                        onRequestClose={() => {
+                        alert('Edit Canceled.');
+                            setModalVisible(!modalVisible);
+                        }}>
+                        <View style={styles.centeredView}>
+                            <View style={styles.modalView}>
+                                <Text style={styles.inputLabel}>Game Name</Text>
+                                <TextInput
+                                    style={styles.inputbox}
+                                    value={gameNameRef}
+                                    placeholder="Name of New Game" 
+                                    inputMode="text"
+                                    onChangeText={(e)=>setGameNameRef(e)}
+                                />
+                                <Text style={styles.inputLabel}>Number of Players</Text>
+                                <View style={styles.inputRange}>
+                                    <TextInput
+                                        style={styles.inputNumBox}
+                                        value={minPlayerRef}
+                                        placeholder="Min #" 
+                                        inputMode="numeric"
+                                        onChangeText={(e)=>setMinPlayerRef(e)}
+                                    />
+                                    <TextInput
+                                        style={styles.inputNumBox}
+                                        value={maxPlayerRef}
+                                        placeholder="Max #" 
+                                        inputMode="numeric"
+                                        onChangeText={(e)=>setMaxPlayerRef(e)}
+                                    />
+                                </View>
+                                <Pressable
+                                    style={[styles.button, styles.buttonClose]}
+                                    onPress={() => {
+                                        setModalVisible(!modalVisible),
+                                        addItem()
+                                    }}>
+                                    <Text style={styles.textStyle}>Save</Text>
+                                </Pressable>
+                                </View>
+                        </View>
+                    </Modal>
                 </View>
+                
                 </>
                 : <></>
                 }
-                <View style={styles.listContainer}>
+                <View style={styles.listContainer & {maxHeight: height, maxWidth: width}}>
                     <Text style={styles.h1}>Game List</Text>
                     <FlatList data={gameData}
                         renderItem={renderItem}
@@ -330,16 +359,86 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         flexDirection: 'row',
         justifyContent: 'space-between',
+        alignItems: 'center',
+        minWidth: 300,
+    },
+    imageBox:{
+        width: 60,
+        height: 60,
+        backgroundColor: 'grey',
+        borderColor: 'black',
+        borderWidth: 1,
+    },
+    itemDetailsColumn:{
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        minWidth: 150,
+        margin: 10,
     },
     itemName:{
         fontSize: 16,
+        fontWeight: 'bold', 
+        alignSelf: 'flex-start'
     },
     itemDetails:{
         fontSize: 16,
         //fontStyle: 'italic', //if in row, miss-aligns text
     },
+    editButton:{
+        height: 45,
+        width: 45,
+        margin: 10,
+        justifyContent: 'center',
+        //alignContent: 'center',
+    },
+    editButtonText:{
+        fontStyle: 'italic',
+        textAlign: 'center',
+    },
     separator:{
         borderBottomWidth: 1,
         borderBlockColor: 'black',
     },
+
+    centeredView: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 22,
+      },
+      modalView: {
+        margin: 20,
+        backgroundColor: 'white',
+        borderRadius: 20,
+        padding: 35,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+      },
+      button: {
+        borderRadius: 20,
+        padding: 10,
+        elevation: 2,
+      },
+      buttonOpen: {
+        backgroundColor: '#F194FF',
+      },
+      buttonClose: {
+        backgroundColor: '#2196F3',
+      },
+      textStyle: {
+        color: 'white',
+        fontWeight: 'bold',
+        textAlign: 'center',
+      },
+      modalText: {
+        marginBottom: 15,
+        textAlign: 'center',
+      },
 });

@@ -60,7 +60,8 @@ export default function Profile({navigation}){
                 const errorMessage = error.message;
             });
         }else{
-            console.log('Invalid Email/Password');
+            console.log('Invalid Form Entry');
+            alert('Invalid Form Entry');
         }
     }
     
@@ -76,9 +77,11 @@ export default function Profile({navigation}){
             .catch((error) => {
                 const errorCode = error.code;
                 const errorMessage = error.message;
+                alert('Invalid Email/Password');
             });
         }else{
-            console.log('Invalid Email/Password');
+            console.log('Invalid Form Entry');
+            alert('Invalid Form Entry');
         }
     }
     
@@ -88,6 +91,7 @@ export default function Profile({navigation}){
             //Log out success
             console.log('Logged Out');
             updateIsLoggedIn(false);
+            toggleReturningUser(true);
         }).catch((error) => {
             const errorCode = error.code;
             const errorMessage = error.message;
@@ -114,7 +118,7 @@ export default function Profile({navigation}){
             <View style={styles.main}>
                 <Nav navigation={navigation}/>
                 <View style={styles.body}>
-                    {(currentUser || isLoggedIn) ? 
+                    {(currentUser !== null || isLoggedIn) ? 
                     <>
                     <Text style={styles.h1}>My Profile Page</Text>
                     <Text style={styles.bodyText}>Welcome Back, {displayName}!</Text>
