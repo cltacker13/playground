@@ -17,15 +17,27 @@ export default function GameDetails({navigation,route}){
     const {height, width, scale, fontScale} = useWindowDimensions();
     const [gameData, setGameData] = useState([]);
     const [gameNameRef, setGameNameRef] = useState('');
+    const [gameDescRef, setGameDescRef] = useState('');
     const [minPlayerRef, setMinPlayerRef] = useState('');
     const [maxPlayerRef, setMaxPlayerRef] = useState('');
+    const [minTimeRef, setMinTimeRef] = useState('');
+    const [maxTimeRef, setMaxTimeRef] = useState('');
+
     const currentUser = auth.currentUser;
     const thisGame = route.params.item; 
     const gameId = thisGame.id;
     const gameName = thisGame.name;
     const gamePlayers = thisGame.players;
     console.log('Game details for:',gameId);
+    const [editable, setEditable] = useState(false);
 
+    function toggleEditFields(){
+        if(currentUser){
+            setEditable(!editable);
+        }else{
+            setEditable(false);
+        }
+    }
 
 
     return(
@@ -78,27 +90,128 @@ export default function GameDetails({navigation,route}){
                             }}>
                             <Text style={styles.editButtonText}>Fav</Text>
                         </Pressable>
-                        <View style={styles.itemName}><Text style={styles.h1}>{gameName}</Text></View>
+                        <View style={styles.itemName}>
+                            { editable == false ?
+                            <>
+                                <Text style={styles.h1}>{gameName}</Text>
+                            </>
+                            :
+                            <>
+                                <TextInput
+                                    style={styles.inputbox}
+                                    value={gameNameRef}
+                                    placeholder="Name of Game" 
+                                    inputMode="text"
+                                    onChangeText={(e)=>setGameNameRef(e)}
+                                />
+                            </>
+                            }
+                        </View>
                         <Pressable style={styles.editButton}
                             onPress={() => {
-                                console.log('Edit Action Clicked')
+                                console.log('Edit Action Clicked'),
+                                toggleEditFields()
                             }}>
                             <Text style={styles.editButtonText}>Edit</Text>
                         </Pressable>
                     </View>
                     <View style={styles.descSection}>
-                        <Text style={styles.descText}>{gameName} is a great game.</Text>
+                        { editable == false ?
+                            <>
+                                <Text style={styles.descText}>{gameName} is a great game.</Text>
+                            </>
+                            :
+                            <>
+                                <TextInput
+                                    style={styles.inputbox}
+                                    value={gameDescRef}
+                                    placeholder="Description of the Game" 
+                                    inputMode="text"
+                                    onChangeText={(e)=>setGameDescRef(e)}
+                                />
+                            </>
+                        }
                     </View>
-                    <View style={styles.highlightsRow}>
-                        <View style={styles.subSection}>
-                            <Text style={styles.descText}>{gamePlayers}</Text>
+                    {editable == false ?
+                    <>
+                        <View style={styles.highlightsRow}>
+                            <View style={styles.subSection}>
+                                <Text style={styles.descText}>{gamePlayers}</Text>
+                                <Text style={styles.sectionLabel}>Player(s)</Text>
+                            </View>
+                            <View style={styles.subSection}>
+                                <Text style={styles.descText}> #-# mins </Text>
+                                <Text style={styles.sectionLabel}>Time</Text>
+                            </View>
+                        </View>
+                    </>
+                    :
+                    <>
+                        <View style={styles.subSection & styles.subSectionEdit}>
+                            <View style={styles.inputRange}>
+                                <TextInput
+                                    style={styles.inputNumBox}
+                                    value={minPlayerRef}
+                                    placeholder="Min #" 
+                                    inputMode="numeric"
+                                    onChangeText={(e)=>setMinPlayerRef(e)}
+                                />
+                                <TextInput
+                                    style={styles.inputNumBox}
+                                    value={maxPlayerRef}
+                                    placeholder="Max #" 
+                                    inputMode="numeric"
+                                    onChangeText={(e)=>setMaxPlayerRef(e)}
+                                />
+                            </View>
                             <Text style={styles.sectionLabel}>Player(s)</Text>
                         </View>
-                        <View style={styles.subSection}>
-                            <Text style={styles.descText}> #-# mins </Text>
-                            <Text style={styles.sectionLabel}>Time</Text>
+                        <View style={styles.subSection & styles.subSectionEdit}>
+                            <View style={styles.inputRange}>
+                                <TextInput
+                                    style={styles.inputNumBox}
+                                    value={minTimeRef}
+                                    placeholder="Min #" 
+                                    inputMode="numeric"
+                                    onChangeText={(e)=>setMinTimeRef(e)}
+                                />
+                                <TextInput
+                                    style={styles.inputNumBox}
+                                    value={maxTimeRef}
+                                    placeholder="Max #" 
+                                    inputMode="numeric"
+                                    onChangeText={(e)=>setMaxTimeRef(e)}
+                                />
+                            </View>
+                            <Text style={styles.sectionLabel}>Time in minutes</Text>
                         </View>
-                    </View>
+                    </>
+                    }
+                    {editable ?
+                    <>
+                        <View style={styles.buttonRow}>
+                            <Pressable
+                                style={[styles.button, styles.saveButton]}
+                                onPress={() => {
+                                    console.log('Save clicked'),
+                                    //editItem()
+                                    toggleEditFields()
+                                }}>
+                                <Text style={styles.textStyle}>Save</Text>
+                            </Pressable> 
+                            <Pressable
+                                style={[styles.button, styles.cancelButton]}
+                                onPress={() => {
+                                    console.log('Cancel clicked'),
+                                    toggleEditFields()
+                                }}>
+                                <Text style={styles.textStyle}>Cancel</Text>
+                            </Pressable>
+                        </View>
+                    </> 
+                    :
+                    <></>
+                    }
                 </View>
             </View>
         </View>
@@ -140,6 +253,7 @@ const styles = StyleSheet.create({
     },
     inputRange:{
         flexDirection: 'row',
+        alignSelf: 'center',
     },
     inputNumBox:{
         textAlign: 'center',
@@ -226,10 +340,40 @@ const styles = StyleSheet.create({
         marginHorizontal: 5,
         width: 100,
     },
+    subSectionEdit:{
+        width: 350,
+        alignItems: 'center',
+    },
     sectionLabel:{
         textAlign: 'center',
         fontSize: 16,
         fontStyle: 'italic',
-    },  
-
+    },
+    buttonRow:{
+        flexDirection: 'row',
+        height: 60,
+        alignContent: 'space-between',
+        justifyContent: 'center',
+        width: 350,
+    }, 
+    button: {
+        borderRadius: 20,
+        padding: 10,
+        elevation: 2,
+        width: 100,
+        justifyContent: 'center',
+    },
+    saveButton: {
+        backgroundColor: 'green',
+        margin: 10,
+    },
+    cancelButton: {
+        backgroundColor: 'red',
+        margin: 10,
+    },
+    textStyle: {
+        color: 'white',
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
 });
