@@ -25,7 +25,7 @@ export default function ProjectView({navigation,route}){
                 return(<WildPet/>)
                 break;
             case 'GameCollection':
-                return(<GameCollection/>)
+                return(<GameCollection navigation={navigation}/>)
                 break;
             case 'DiceRoll':
                 return(<DiceRoll/>)

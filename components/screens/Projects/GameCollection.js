@@ -5,7 +5,6 @@ import { push, onValue } from 'firebase/database';
 import auth from '../../firebase/Users';
 import gamesDB from '../../firebase/Games';
 
-
 onAuthStateChanged(auth, (user) => {
     if(user){
         console.log(`${user.displayName} is logged in.`);
@@ -38,13 +37,14 @@ export const gameCollectionDesc = 'Starting point for a collection database of g
 //Scope issue: has to be outside of default function if called in Item Component
 function editItem(id){
     console.log(`Edit ${id} clicked.`);
-    onAuthStateChanged(auth, (user) => {
+
+    /*onAuthStateChanged(auth, (user) => {
         if(user){
             console.log(user.displayName,`You have permission to edit ${id}.`);
         } else {
             console.log(`You don't have permission to edit.`);
         }
-    })
+    })*/
     /*
     let userAccess = true;
     if(userAccess){
@@ -55,11 +55,6 @@ function editItem(id){
     }*/
 };
 
-/* future edit code.
-        <Pressable onPress={() => editItem(id)}>
-            <Text style={{fontStyle: 'italic'}}> Edit </Text>
-        </Pressable>
-*/
 const Item = ({id,name,players}) => (
     <View key={id} style={styles.itemContainer}>
         <View style={styles.imageBox}></View>
@@ -71,8 +66,8 @@ const Item = ({id,name,players}) => (
         <>
         <Pressable style={styles.editButton}
             onPress={() => {
-                editItem(id), 
-                alert(`Editing ${id}`)
+                alert(`Editing ${id}`),
+                editItem(id)
             }}>
             <Text style={styles.editButtonText}> Edit </Text>
         </Pressable>
@@ -153,11 +148,11 @@ export default function GameCollection({navigation}){
         return setAddVisible(!addVisible);
     };
 
-    function renderItem({item}){
+    /*function renderItem({item}){      
         return(
             <Item id={item.id} name={item.name} players={item.players} />
         );
-    };
+    };*/
 
     //add new entry to game db
     function addItem(){
@@ -270,7 +265,14 @@ export default function GameCollection({navigation}){
                 <View style={styles.listContainer & {maxHeight: height, maxWidth: width}}>
                     <Text style={styles.h1}>Game List</Text>
                     <FlatList data={gameData}
-                        renderItem={renderItem}
+                        renderItem={({ item }) => (
+                            <Pressable onPress={ () => { 
+                                console.log('View Clicked for',item.name),
+                                navigation.navigate('GameDetails',{item}) 
+                                } }>
+                                <Item id={item.id} name={item.name} players={item.players} />
+                            </Pressable>
+                        )}
                         ItemSeparatorComponent={Separator}
                         nestedScrollEnabled/>
                 </View>

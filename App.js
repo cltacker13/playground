@@ -8,6 +8,7 @@ import Profile from './components/screens/Profile';
 import About from './components/screens/About';
 import Projects from './components/screens/Projects';
 import ProjectView from './components/screens/ProjectView';
+import GameDetails from './components/screens/Projects/GC-GameDetails';
 
 const Stack = createNativeStackNavigator();
 
@@ -40,6 +41,11 @@ export default function App() {
                         name='ProjectView'
                         component={ProjectView}
                         options={{title: 'Sample Project'}}
+                    ></Stack.Screen>
+                    <Stack.Screen 
+                        name='GameDetails'
+                        component={GameDetails}
+                        options={{title: 'Game Details'}}
                     ></Stack.Screen>
                 </Stack.Navigator>
             </NavigationContainer>
