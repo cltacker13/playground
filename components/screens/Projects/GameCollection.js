@@ -64,13 +64,9 @@ const Item = ({id,name,players}) => (
         </View>
         {auth.currentUser ?
         <>
-        <Pressable style={styles.editButton}
-            onPress={() => {
-                alert(`Editing ${id}`),
-                editItem(id)
-            }}>
-            <Text style={styles.editButtonText}> Edit </Text>
-        </Pressable>
+        <View style={styles.editButton}>
+            <Text style={styles.editButtonText}>Star</Text>
+        </View>
         </>
         : <></>}
     </View>

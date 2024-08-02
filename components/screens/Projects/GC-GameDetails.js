@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TextInput, Pressable, FlatList, Modal, useWindowDimensions } from 'react-native';
 import { onAuthStateChanged } from 'firebase/auth';
-import { push, onValue } from 'firebase/database';
+import { ref, update, child, push, onValue } from 'firebase/database';
 import auth from '../../firebase/Users';
 import gamesDB from '../../firebase/Games';
 
@@ -15,20 +15,30 @@ onAuthStateChanged(auth, (user) => {
 
 export default function GameDetails({navigation,route}){
     const {height, width, scale, fontScale} = useWindowDimensions();
-    const [gameData, setGameData] = useState([]);
-    const [gameNameRef, setGameNameRef] = useState('');
+    //const [gameData, setGameData] = useState([]);
+    const currentUser = auth.currentUser;
+    const thisGame = route.params.item; 
+    const gameRefId = thisGame.id;
+    const gameName = thisGame.name;
+    //const gameDesc = thisGame.desc;
+    const gamePlayers = thisGame.players;
+    /*const gameMinPlayers = thisGame.minPlayers;
+    const gameMaxPlayers = thisGame.maxPlayers;
+    const gameMinTime = thisGame.minTime;
+    const gameMaxTime = thisGame.maxTime;*/
+
+    const [gameNameRef, setGameNameRef] = useState(gameName);
+    const [newName, setNewName] = useState(gameNameRef);
     const [gameDescRef, setGameDescRef] = useState('');
+    const [newDesc, setNewDesc] = useState(gameDescRef);
     const [minPlayerRef, setMinPlayerRef] = useState('');
+    const [newMinPlayer, setNewMinPlayer] = useState(minPlayerRef);
     const [maxPlayerRef, setMaxPlayerRef] = useState('');
+    const [newMaxPlayer, setNewMaxPlayer] = useState(maxPlayerRef);
     const [minTimeRef, setMinTimeRef] = useState('');
     const [maxTimeRef, setMaxTimeRef] = useState('');
 
-    const currentUser = auth.currentUser;
-    const thisGame = route.params.item; 
-    const gameId = thisGame.id;
-    const gameName = thisGame.name;
-    const gamePlayers = thisGame.players;
-    console.log('Game details for:',gameId);
+    console.log('Game:',thisGame);
     const [editable, setEditable] = useState(false);
 
     function toggleEditFields(){
@@ -39,6 +49,29 @@ export default function GameDetails({navigation,route}){
         }
     }
 
+    function editItem(){
+        /*Game Data structure reference:
+            {[gameID,{name:name,players:players}]}
+        */
+        let updates = {};
+        let changes = {};
+        if(gameNameRef != newName){
+            changes = {name:newName}
+            console.log('new name:',newName);
+        }
+        /*if(gameDescRef != newDesc){
+            changes += {description:newDesc}
+        }
+        if(minPlayerRef != newMinPlayer){
+            
+        }
+        if(maxPlayerRef != newMaxPlayer){
+            
+        }*/
+        updates[gameRefId] = changes;
+        console.log(changes.name);
+        //update(gamesDB,updates) // does not push update yet.
+    }
 
     return(
         <View style={styles.body}>
@@ -88,7 +121,7 @@ export default function GameDetails({navigation,route}){
                             onPress={() => {
                                 console.log('Fav Action Clicked')
                             }}>
-                            <Text style={styles.editButtonText}>Fav</Text>
+                            <Text style={styles.editButtonText}>Star</Text>
                         </Pressable>
                         <View style={styles.itemName}>
                             { editable == false ?
@@ -99,10 +132,10 @@ export default function GameDetails({navigation,route}){
                             <>
                                 <TextInput
                                     style={styles.inputbox}
-                                    value={gameNameRef}
-                                    placeholder="Name of Game" 
+                                    value={newName}
+                                    placeholder="Name of the Game" 
                                     inputMode="text"
-                                    onChangeText={(e)=>setGameNameRef(e)}
+                                    onChangeText={(e)=>setNewName(e)}
                                 />
                             </>
                             }
@@ -124,15 +157,15 @@ export default function GameDetails({navigation,route}){
                             <>
                                 <TextInput
                                     style={styles.inputbox}
-                                    value={gameDescRef}
+                                    value={newDesc}
                                     placeholder="Description of the Game" 
                                     inputMode="text"
-                                    onChangeText={(e)=>setGameDescRef(e)}
+                                    onChangeText={(e)=>setNewDesc(e)}
                                 />
                             </>
                         }
                     </View>
-                    {editable == false ?
+                    { editable == false ?
                     <>
                         <View style={styles.highlightsRow}>
                             <View style={styles.subSection}>
@@ -194,7 +227,7 @@ export default function GameDetails({navigation,route}){
                                 style={[styles.button, styles.saveButton]}
                                 onPress={() => {
                                     console.log('Save clicked'),
-                                    //editItem()
+                                    editItem(),
                                     toggleEditFields()
                                 }}>
                                 <Text style={styles.textStyle}>Save</Text>
