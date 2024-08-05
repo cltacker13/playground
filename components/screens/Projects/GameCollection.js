@@ -33,34 +33,28 @@ export const gameCollectionDesc = 'Starting point for a collection database of g
     {id: '100011', name: 'WingSpan', players: '1-5'},
 ];*/
 
-//future feature edit existing entry in list & save edits to game db
-//Scope issue: has to be outside of default function if called in Item Component
-function editItem(id){
-    console.log(`Edit ${id} clicked.`);
 
-    /*onAuthStateChanged(auth, (user) => {
-        if(user){
-            console.log(user.displayName,`You have permission to edit ${id}.`);
-        } else {
-            console.log(`You don't have permission to edit.`);
+const formatPlayers = (min,max) => {
+    let players = '';
+    if(min === max){
+        if(min === '1'){
+            players = `${min} player`;
+        }else{
+            players = `${min} players`;
         }
-    })*/
-    /*
-    let userAccess = true;
-    if(userAccess){
-        console.log(`Edit ${id} clicked.`);
-        return;
     }else{
-        console.log(`You don't have permission to edit.`);
-    }*/
-};
+        players = `${min}-${max} players`;
+    }
+    return players;
+}
 
-const Item = ({id,name,players}) => (
+const Item = ({id,gameID,name,desc,minPlayers,maxPlayers}) => (
     <View key={id} style={styles.itemContainer}>
-        <View style={styles.imageBox}></View>
+        <View style={styles.imageBox}><Text>{gameID}</Text></View>
         <View style={styles.itemDetailsColumn}>
             <Text style={styles.itemName}>{name} </Text>
-            <Text style={styles.itemDetails}>({players} players)</Text>
+            <Text style={styles.itemDetails}>({
+            formatPlayers(minPlayers,maxPlayers)})</Text>
         </View>
         {auth.currentUser ?
         <>
@@ -80,6 +74,7 @@ export default function GameCollection({navigation}){
     const [addVisible, setAddVisible] = useState(false);
     const [gameData, setGameData] = useState([]);
     const [gameNameRef, setGameNameRef] = useState('');
+    const [gameDescRef, setGameDescRef] = useState('');
     const [minPlayerRef, setMinPlayerRef] = useState('');
     const [maxPlayerRef, setMaxPlayerRef] = useState('');
     const currentUser = auth.currentUser;
@@ -94,6 +89,7 @@ export default function GameCollection({navigation}){
                 //get current "snapshot" of data from db
                 //console.log('Local #: ',gameData.length);
                 onValue(gamesDB, function(snapshot) {
+                    //console.log('getting onValue snapshot')
                     let dbGamesArr = [];
                     //console.log("dbGamesArr: ",dbGamesArr)
                     let gamesSnapshot = Object.entries(snapshot.val()).map((game)=>{
@@ -101,10 +97,12 @@ export default function GameCollection({navigation}){
                             id: game[0],
                             gameID: game[1][0],
                             name: game[1][1].name,
-                            players: game[1][1].players 
+                            description: game[1][1].description,
+                            minPlayer: game[1][1].minPlayer,
+                            maxPlayer: game[1][1].maxPlayer,
                         })
                     }); 
-                    //console.log('game snapshot:',Object.entries(snapshot.val()));                 
+                    console.log('game snapshot:',Object.entries(snapshot.val()));                 
                     //console.log('2db games list: ',dbGamesArr);
                     //console.log('db #: ',dbGamesArr.length);
                     
@@ -144,34 +142,34 @@ export default function GameCollection({navigation}){
         return setAddVisible(!addVisible);
     };
 
-    /*function renderItem({item}){      
-        return(
-            <Item id={item.id} name={item.name} players={item.players} />
-        );
-    };*/
 
     //add new entry to game db
     function addItem(){
         //let userAccess = true;
         if(auth.currentUser !== null){
             //entry error handling.
-            if(gameNameRef.trim() !== '' && minPlayerRef > 0 && maxPlayerRef >= minPlayerRef){
+            if(gameNameRef.trim() !== '' && gameDescRef.trim() !== '' && minPlayerRef > 0 && maxPlayerRef >= minPlayerRef){
                 let gamesByGameID = gameData.sort((a,b)=> a.gameID - b.gameID);
                 let gameID = Number(gamesByGameID[gameData.length-1].gameID)+1;
                 let name = gameNameRef;
+                let desc = gameDescRef;
                 let players = '';
+                let minPlayers = `${minPlayerRef}`;
+                let maxPlayers = `${maxPlayerRef}`;
                 if(minPlayerRef === maxPlayerRef){
                     players = `${minPlayerRef}`;
                 }else{
                     players = `${minPlayerRef}-${maxPlayerRef}`;
                 }
-                const newGameData = [gameID,{name:name,players:players}]
+                //const newGameData = [gameID,{name:name,players:players}]
+                const newGameData = [gameID,{name:name,description:desc,minPlayer:minPlayers,maxPlayer:maxPlayers}]
                 //save to db
                 try {
                     push(gamesDB, newGameData);
                     alert(`Added: {${gameID}} ${name} (${players} players)`);
                     //console.log(`Added: {${gameID}} ${name} (${players} players)`);
                     resetRef();
+                    setModalVisible(!modalVisible);
                 } catch (error) {
                     console.log(`Failed to Add: {${gameID}} ${name} (${players} players)`)
                 };
@@ -188,6 +186,7 @@ export default function GameCollection({navigation}){
 
     function resetRef(){
         setGameNameRef('');
+        setGameDescRef('');
         setMinPlayerRef('');
         setMaxPlayerRef('');
     };
@@ -225,6 +224,14 @@ export default function GameCollection({navigation}){
                                     inputMode="text"
                                     onChangeText={(e)=>setGameNameRef(e)}
                                 />
+                                <Text style={styles.inputLabel}>Description</Text>
+                                <TextInput
+                                    style={styles.inputbox}
+                                    value={gameDescRef}
+                                    placeholder="Description of the Game" 
+                                    inputMode="text"
+                                    onChangeText={(e)=>setGameDescRef(e)}
+                                />
                                 <Text style={styles.inputLabel}>Number of Players</Text>
                                 <View style={styles.inputRange}>
                                     <TextInput
@@ -245,7 +252,6 @@ export default function GameCollection({navigation}){
                                 <Pressable
                                     style={[styles.button, styles.buttonClose]}
                                     onPress={() => {
-                                        setModalVisible(!modalVisible),
                                         addItem()
                                     }}>
                                     <Text style={styles.textStyle}>Save</Text>
@@ -266,7 +272,7 @@ export default function GameCollection({navigation}){
                                 console.log('View Clicked for',item.name),
                                 navigation.navigate('GameDetails',{item}) 
                                 } }>
-                                <Item id={item.id} name={item.name} players={item.players} />
+                                <Item id={item.id} gameID={item.gameID} name={item.name} desc={item.description} minPlayers={item.minPlayer} maxPlayers={item.maxPlayer} />
                             </Pressable>
                         )}
                         ItemSeparatorComponent={Separator}

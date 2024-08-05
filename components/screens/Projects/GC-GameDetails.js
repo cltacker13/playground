@@ -5,6 +5,20 @@ import { ref, update, child, push, onValue } from 'firebase/database';
 import auth from '../../firebase/Users';
 import gamesDB from '../../firebase/Games';
 
+const formatPlayers = (min,max) => {
+    let players = '';
+    if(min === max){
+        if(min === '1'){
+            players = `${min}`;
+        }else{
+            players = `${min}`;
+        }
+    }else{
+        players = `${min}-${max}`;
+    }
+    return players;
+}
+
 onAuthStateChanged(auth, (user) => {
     if(user){
         console.log(`${user.displayName} is logged in.`);
@@ -19,27 +33,55 @@ export default function GameDetails({navigation,route}){
     const currentUser = auth.currentUser;
     const thisGame = route.params.item; 
     const gameRefId = thisGame.id;
+    const gameID = thisGame.gameID;
     const gameName = thisGame.name;
-    //const gameDesc = thisGame.desc;
-    const gamePlayers = thisGame.players;
-    /*const gameMinPlayers = thisGame.minPlayers;
-    const gameMaxPlayers = thisGame.maxPlayers;
-    const gameMinTime = thisGame.minTime;
+    const gameDesc = thisGame.description;
+    //const gamePlayers = thisGame.players;
+    const gameMinPlayers = thisGame.minPlayer;
+    const gameMaxPlayers = thisGame.maxPlayer;
+    /*const gameMinTime = thisGame.minTime;
     const gameMaxTime = thisGame.maxTime;*/
 
     const [gameNameRef, setGameNameRef] = useState(gameName);
     const [newName, setNewName] = useState(gameNameRef);
-    const [gameDescRef, setGameDescRef] = useState('');
+    const [gameDescRef, setGameDescRef] = useState(gameDesc);
     const [newDesc, setNewDesc] = useState(gameDescRef);
-    const [minPlayerRef, setMinPlayerRef] = useState('');
+    const [minPlayerRef, setMinPlayerRef] = useState(gameMinPlayers);
     const [newMinPlayer, setNewMinPlayer] = useState(minPlayerRef);
-    const [maxPlayerRef, setMaxPlayerRef] = useState('');
+    const [maxPlayerRef, setMaxPlayerRef] = useState(gameMaxPlayers);
     const [newMaxPlayer, setNewMaxPlayer] = useState(maxPlayerRef);
     const [minTimeRef, setMinTimeRef] = useState('');
     const [maxTimeRef, setMaxTimeRef] = useState('');
 
-    console.log('Game:',thisGame);
+    console.log('thisGame:',thisGame);
     const [editable, setEditable] = useState(false);
+
+    //show up to date db data to screen
+    useEffect(() => {
+        //let path = `${gamesDB}/${gameRefId}/`;
+        //console.log(path);
+        (async () => {
+            try {
+                //get current "snapshot" of data from db
+                onValue(gamesDB, function(snapshot) {
+                    //console.log('getting onValue snapshot')
+                    let gamesSnapshot = Object.entries(snapshot.val()).map((game)=>{
+                        if(game[0] == gameRefId){
+                            console.log(game[1][1].name);
+                            setGameNameRef(game[1][1].name);
+                            setGameDescRef(game[1][1].description);
+                            setMinPlayerRef(game[1][1].minPlayer);
+                            setMaxPlayerRef(game[1][1].maxPlayer);
+                        }
+                    }); 
+                    //console.log('game snapshot:',Object.entries(snapshot.val()));
+                }) 
+            } catch (err) {
+                // Handle error 
+                console.log(err.message); 
+            } 
+        })();
+    }, []);
 
     function toggleEditFields(){
         if(currentUser){
@@ -52,25 +94,28 @@ export default function GameDetails({navigation,route}){
     function editItem(){
         /*Game Data structure reference:
             {[gameID,{name:name,players:players}]}
+            {[gameID,{name:name,description:desc,min-players:min-players,max-players:max-players}]}
         */
+        console.log(gameRefId);
+        //const existingData = [gameID,{name:gameNameRef,players:gamePlayers}];
+        //console.log(existingData);
         let updates = {};
-        let changes = {};
         if(gameNameRef != newName){
-            changes = {name:newName}
-            console.log('new name:',newName);
+            updates[`${gameRefId}/1/name/`] = newName;
+            //console.log('new name:',newName);
         }
-        /*if(gameDescRef != newDesc){
-            changes += {description:newDesc}
+        if(gameDescRef != newDesc){
+            updates[`${gameRefId}/1/description/`] = newDesc;
         }
         if(minPlayerRef != newMinPlayer){
-            
+            updates[`${gameRefId}/1/minPlayer/`] = newMinPlayer;
         }
         if(maxPlayerRef != newMaxPlayer){
-            
-        }*/
-        updates[gameRefId] = changes;
-        console.log(changes.name);
-        //update(gamesDB,updates) // does not push update yet.
+            updates[`${gameRefId}/1/maxPlayer/`] = newMaxPlayer;
+        }
+        console.log(updates);
+        update(gamesDB,updates);
+        
     }
 
     return(
@@ -126,7 +171,7 @@ export default function GameDetails({navigation,route}){
                         <View style={styles.itemName}>
                             { editable == false ?
                             <>
-                                <Text style={styles.h1}>{gameName}</Text>
+                                <Text style={styles.h1}>{gameNameRef}</Text>
                             </>
                             :
                             <>
@@ -151,7 +196,7 @@ export default function GameDetails({navigation,route}){
                     <View style={styles.descSection}>
                         { editable == false ?
                             <>
-                                <Text style={styles.descText}>{gameName} is a great game.</Text>
+                                <Text style={styles.descText}>{gameDescRef}</Text>
                             </>
                             :
                             <>
@@ -169,7 +214,7 @@ export default function GameDetails({navigation,route}){
                     <>
                         <View style={styles.highlightsRow}>
                             <View style={styles.subSection}>
-                                <Text style={styles.descText}>{gamePlayers}</Text>
+                                <Text style={styles.descText}>{formatPlayers(minPlayerRef,maxPlayerRef)}</Text>
                                 <Text style={styles.sectionLabel}>Player(s)</Text>
                             </View>
                             <View style={styles.subSection}>
@@ -184,17 +229,17 @@ export default function GameDetails({navigation,route}){
                             <View style={styles.inputRange}>
                                 <TextInput
                                     style={styles.inputNumBox}
-                                    value={minPlayerRef}
+                                    value={newMinPlayer}
                                     placeholder="Min #" 
                                     inputMode="numeric"
-                                    onChangeText={(e)=>setMinPlayerRef(e)}
+                                    onChangeText={(e)=>setNewMinPlayer(e)}
                                 />
                                 <TextInput
                                     style={styles.inputNumBox}
-                                    value={maxPlayerRef}
+                                    value={newMaxPlayer}
                                     placeholder="Max #" 
                                     inputMode="numeric"
-                                    onChangeText={(e)=>setMaxPlayerRef(e)}
+                                    onChangeText={(e)=>setNewMaxPlayer(e)}
                                 />
                             </View>
                             <Text style={styles.sectionLabel}>Player(s)</Text>
