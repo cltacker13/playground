@@ -1,11 +1,12 @@
-import auth from "../firebase/Users";
+import auth from "../firebase/Auth";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, signOut, onAuthStateChanged } from "firebase/auth";
-
-import React, { useState } from 'react';
+import usersDB from "../firebase/Users";
+import React, { useEffect, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import Nav from './Nav';
+import { update, onValue } from "firebase/database";
 
 const validateEmail = (email) => {
     var regex = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
@@ -29,11 +30,43 @@ export default function Profile({navigation}){
     const [isLoggedIn, updateIsLoggedIn] = useState(false);
     const [returningUser, toggleReturningUser] = useState(false);
     const currentUser = auth.currentUser;
+    console.log('uid:',currentUser.uid);
     const [displayName, updateDisplayName] = (currentUser ? useState(currentUser.displayName) : useState(''));
     const [username, onUsernameChange] = (currentUser ? useState(currentUser.displayName) : useState(''));
     //console.log(currentUser);
     //console.log(isEmailValid,isPasswordValid,isFormValid)
     
+        //show up to date db data to screen
+        useEffect(() => {
+            (async () => {
+                console.log('usersDB: ', usersDB);
+                try {
+                    //get current "snapshot" of data from db
+                    onValue(usersDB, function(snapshot) {
+                        //console.log('getting onValue snapshot')
+                        let userGameList = [];
+                        let usersSnapshot = Object.entries(snapshot.val()).map((user)=>{
+                            if(user[0] == currentUser.uid){
+                                //console.log(user[1].firstName);
+                                //console.log(user[1].lastName);
+                                //console.log(user[1].email);
+                                //console.log(user[1].gameList);
+                                userGameList.push(user[1].gameList);
+                                //updateDisplayName(user.firstName);
+                            }
+                            console.log(userGameList[0][0].location);
+                            console.log('user snapshot:',Object.entries(snapshot.val()));                 
+                        })
+                    }) 
+
+                } catch (err) {
+                    // Handle error 
+                    console.log(err.message); 
+                } 
+            })();
+          }, []);
+
+
     const inlineEmailValidation = () => {
         if(!isEmailValid){
             console.log('Invalid Email:',email)
@@ -54,6 +87,18 @@ export default function Profile({navigation}){
                 //Sign up
                 const user = userCredential.user;
                 updateIsLoggedIn(true);  
+                //add new user to userDB
+                const userID = user.uid;
+                const newUserData = {firstName:'',lastName:'',email:email};
+                //save to db
+                try {
+                    set((usersDB+'/'+userID+'/'), newUserData);
+                    alert(`Added: ${newUserData}`);
+                    //console.log(`Added: ${newUserData}`);
+                } catch (error) {
+                    console.log(`Failed to Add: ${newUserData}`);
+                };
+
             })
             .catch((error) => {
                 const errorCode = error.code;
@@ -99,18 +144,28 @@ export default function Profile({navigation}){
     }
 
     const updateAccount = async () => {
+        const userID = currentUser.uid;
+        //console.log('userid:',userID);
+        let updates = {};
         if(username != ''){
             updateProfile(auth.currentUser, {
                 displayName: username
             }).then(() => {
                 // Profile updated!
                 updateDisplayName(username);  
-                console.log('updated username to:',username)
+                console.log('updated username to:',username);
             }).catch((error) => {
                 const errorCode = error.code;
                 const errorMessage = error.message;
             });
         }
+        //update first name in usersDB
+        updates[`${userID}/firstName/`] = username;
+        //updates[`${userID}/lastName/`] = '';
+        //updates[`${userID}/email/`] = email;
+
+        console.log(updates);
+        update(usersDB,updates);
     }
     
     return(

@@ -1,13 +1,6 @@
 import firebaseApp from '../firebase/AppData';
-import { getAuth } from 'firebase/auth';
-const auth = getAuth(firebaseApp);
+import { getDatabase, ref } from 'firebase/database';
+const database = getDatabase(firebaseApp);
+const usersDB = ref(database, "Users");
 
-/*import { initializeAuth, getReactNativePersistence } from 'firebase/auth/react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const auth = initializeAuth(firebaseApp, {
-  persistence: getReactNativePersistence(AsyncStorage)
-});*/
-
-export default auth;
-
+export default usersDB;

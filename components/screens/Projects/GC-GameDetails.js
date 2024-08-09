@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TextInput, Pressable, FlatList, Modal, useWindowDimensions } from 'react-native';
 import { onAuthStateChanged } from 'firebase/auth';
 import { ref, update, child, push, onValue } from 'firebase/database';
-import auth from '../../firebase/Users';
+import auth from '../../firebase/Auth';
 import gamesDB from '../../firebase/Games';
 
 const formatPlayers = (min,max) => {

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TextInput, Pressable, FlatList, Modal, useWindowDimensions } from 'react-native';
 import { onAuthStateChanged } from 'firebase/auth';
 import { push, onValue } from 'firebase/database';
-import auth from '../../firebase/Users';
+import auth from '../../firebase/Auth';
 import gamesDB from '../../firebase/Games';
 
 onAuthStateChanged(auth, (user) => {
