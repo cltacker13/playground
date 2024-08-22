@@ -41,6 +41,7 @@ export default function GameDetails({navigation,route}){
     const gameMaxPlayers = thisGame.maxPlayer;
     /*const gameMinTime = thisGame.minTime;
     const gameMaxTime = thisGame.maxTime;*/
+    const gameIsFavorite = thisGame.favorite;
 
     const [gameNameRef, setGameNameRef] = useState(gameName);
     const [newName, setNewName] = useState(gameNameRef);
@@ -52,6 +53,7 @@ export default function GameDetails({navigation,route}){
     const [newMaxPlayer, setNewMaxPlayer] = useState(maxPlayerRef);
     const [minTimeRef, setMinTimeRef] = useState('');
     const [maxTimeRef, setMaxTimeRef] = useState('');
+    const [isFavorite, setIsFavorite] = useState(gameIsFavorite);
 
     console.log('thisGame:',thisGame);
     const [editable, setEditable] = useState(false);
@@ -164,9 +166,10 @@ export default function GameDetails({navigation,route}){
                     <View style={styles.headerRow}>
                         <Pressable style={styles.favoriteButton}
                             onPress={() => {
-                                console.log('Fav Action Clicked')
+                                console.log('Fav Action Clicked'),
+                                setIsFavorite(!isFavorite)
                             }}>
-                            <Text style={styles.editButtonText}>Star</Text>
+                            <Text style={isFavorite ? styles.favorite : styles.editButtonText}>Star</Text>
                         </Pressable>
                         <View style={styles.itemName}>
                             { editable == false ?
@@ -374,6 +377,12 @@ const styles = StyleSheet.create({
         margin: 10,
         justifyContent: 'center',
     },
+    favorite:{
+        fontStyle: 'italic',
+        textAlign: 'center',
+        fontWeight: "bold",
+        color: "purple", 
+    },  
     itemName:{
         alignSelf: 'center',
         justifyContent: 'center',

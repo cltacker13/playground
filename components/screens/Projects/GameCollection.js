@@ -4,6 +4,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { push, onValue } from 'firebase/database';
 import auth from '../../firebase/Auth';
 import gamesDB from '../../firebase/Games';
+import usersDB from '../../firebase/Users';
 
 onAuthStateChanged(auth, (user) => {
     if(user){
@@ -48,7 +49,7 @@ const formatPlayers = (min,max) => {
     return players;
 }
 
-const Item = ({id,gameID,name,desc,minPlayers,maxPlayers}) => (
+const Item = ({id,gameID,name,desc,minPlayers,maxPlayers,favorite}) => (
     <View key={id} style={styles.itemContainer}>
         <View style={styles.imageBox}><Text>{gameID}</Text></View>
         <View style={styles.itemDetailsColumn}>
@@ -58,8 +59,8 @@ const Item = ({id,gameID,name,desc,minPlayers,maxPlayers}) => (
         </View>
         {auth.currentUser ?
         <>
-        <View style={styles.editButton}>
-            <Text style={styles.editButtonText}>Star</Text>
+        <View style={styles.favButton}>
+            <Text style={favorite ? styles.favorite : styles.editButtonText}>Star</Text>
         </View>
         </>
         : <></>}
@@ -80,11 +81,39 @@ export default function GameCollection({navigation}){
     const currentUser = auth.currentUser;
     //console.log(currentUser);
     const [modalVisible, setModalVisible] = useState(false);
-
+    const [userGameList, setUserGameList] = useState([]);
+    
     //show up to date db data to screen
     useEffect(() => {
         (async () => {
-            console.log('gamesDB: ', gamesDB);
+            //console.log('gamesDB: ', gamesDB);
+            //console.log('userDB:',usersDB);
+            let dbUsersGameArr = [];
+            try {
+                onValue(usersDB, function(snapshot) {
+                    let currentUID = auth.currentUser.uid;
+                    let usersSnapshot = Object.entries(snapshot.val()).map((user)=>{
+                        if(user[0] === currentUID){
+                            console.log('if userGameList:',user[1].gameList[0]);
+                            let listArr = user[1].gameList;
+                            for(let i=0;i<listArr.length;i++){
+                                dbUsersGameArr.push({
+                                    gameID: listArr[i].gameID,
+                                    location: listArr[i].location,
+                                    favorite: listArr[i].star,
+                                })
+                            }
+                            console.log(dbUsersGameArr);
+                            setUserGameList(dbUsersGameArr);
+                            //setUserGameList(user[1].gameList);
+                        };
+                    }); 
+                })
+            } catch (error) {
+                // Handle error 
+                console.log(error.message);
+            }
+            console.log('userGameList:',userGameList);
             try {
                 //get current "snapshot" of data from db
                 //console.log('Local #: ',gameData.length);
@@ -93,20 +122,36 @@ export default function GameCollection({navigation}){
                     let dbGamesArr = [];
                     //console.log("dbGamesArr: ",dbGamesArr)
                     let gamesSnapshot = Object.entries(snapshot.val()).map((game)=>{
-                        dbGamesArr.push({
-                            id: game[0],
-                            gameID: game[1][0],
-                            name: game[1][1].name,
-                            description: game[1][1].description,
-                            minPlayer: game[1][1].minPlayer,
-                            maxPlayer: game[1][1].maxPlayer,
-                        })
+                        for(let i=1;i<dbUsersGameArr.length;i++){
+                            if(dbUsersGameArr[i].gameID == game[0]){
+                                dbGamesArr.push({                                    id: game[0],
+                                    gameID: game[1][0],
+                                    name: game[1][1].name,
+                                    description: game[1][1].description,
+                                    minPlayer: game[1][1].minPlayer,
+                                    maxPlayer: game[1][1].maxPlayer,
+                                    favorite: dbUsersGameArr[i].favorite,
+                                    location: dbUsersGameArr[i].location,
+                                })
+                            }else{
+                                dbGamesArr.push({
+                                    id: game[0],
+                                    gameID: game[1][0],
+                                    name: game[1][1].name,
+                                    description: game[1][1].description,
+                                    minPlayer: game[1][1].minPlayer,
+                                    maxPlayer: game[1][1].maxPlayer,
+                                    favorite: false,
+                                    location: '',
+                                })
+                            }
+                        }
                     }); 
-                    console.log('game snapshot:',Object.entries(snapshot.val()));                 
+                    //console.log('game snapshot:',Object.entries(snapshot.val()));                 
                     //console.log('2db games list: ',dbGamesArr);
                     //console.log('db #: ',dbGamesArr.length);
                     
-                    console.log(`Local #: ${gameData.length} & db #: ${dbGamesArr.length}. Making List.`);
+                    //console.log(`Local #: ${gameData.length} & db #: ${dbGamesArr.length}. Making List.`);
                     //console.log('Made List: ',dbGamesArr);
 
                     //sort game list
@@ -121,7 +166,7 @@ export default function GameCollection({navigation}){
                         }
                         return 0;
                     });
-                    //console.log('Sorted List: ',dbGamesArr);
+                    console.log('Sorted List: ',dbGamesArr);
 
                     //update local list with db list
                     setGameData(dbGamesArr);
@@ -272,7 +317,7 @@ export default function GameCollection({navigation}){
                                 console.log('View Clicked for',item.name),
                                 navigation.navigate('GameDetails',{item}) 
                                 } }>
-                                <Item id={item.id} gameID={item.gameID} name={item.name} desc={item.description} minPlayers={item.minPlayer} maxPlayers={item.maxPlayer} />
+                                <Item id={item.id} gameID={item.gameID} name={item.name} desc={item.description} minPlayers={item.minPlayer} maxPlayers={item.maxPlayer} favorite={item.favorite}/>
                             </Pressable>
                         )}
                         ItemSeparatorComponent={Separator}
@@ -389,6 +434,19 @@ const styles = StyleSheet.create({
         fontSize: 16,
         //fontStyle: 'italic', //if in row, miss-aligns text
     },
+    favButton:{
+        height: 45,
+        width: 45,
+        margin: 10,
+        justifyContent: 'center',
+        //alignContent: 'center',
+    },
+    favorite:{
+        fontStyle: 'italic',
+        textAlign: 'center',
+        fontWeight: "bold",
+        color: "purple", 
+    },  
     editButton:{
         height: 45,
         width: 45,
