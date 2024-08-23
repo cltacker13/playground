@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TextInput, Pressable, FlatList, Modal, useWindowDimensions } from 'react-native';
 import { onAuthStateChanged } from 'firebase/auth';
-import { ref, update, child, push, onValue } from 'firebase/database';
+import { ref, update, child, push, onValue, set } from 'firebase/database';
 import auth from '../../firebase/Auth';
 import gamesDB from '../../firebase/Games';
+import usersDB from '../../firebase/Users';
 
 const formatPlayers = (min,max) => {
     let players = '';
@@ -42,7 +43,10 @@ export default function GameDetails({navigation,route}){
     /*const gameMinTime = thisGame.minTime;
     const gameMaxTime = thisGame.maxTime;*/
     const gameIsFavorite = thisGame.favorite;
+    const gameLocation = thisGame.location;
 
+    const [gameKey, setGameKey] = useState('');
+    const [keyLength, setKeyLength] = useState('');
     const [gameNameRef, setGameNameRef] = useState(gameName);
     const [newName, setNewName] = useState(gameNameRef);
     const [gameDescRef, setGameDescRef] = useState(gameDesc);
@@ -54,6 +58,8 @@ export default function GameDetails({navigation,route}){
     const [minTimeRef, setMinTimeRef] = useState('');
     const [maxTimeRef, setMaxTimeRef] = useState('');
     const [isFavorite, setIsFavorite] = useState(gameIsFavorite);
+    const [locationRef, setLocationRef] = useState(gameLocation);
+    const [newLocation, setNewLocation] = useState(locationRef);
 
     console.log('thisGame:',thisGame);
     const [editable, setEditable] = useState(false);
@@ -64,7 +70,7 @@ export default function GameDetails({navigation,route}){
         //console.log(path);
         (async () => {
             try {
-                //get current "snapshot" of data from db
+                //get current "snapshot" of game data from db
                 onValue(gamesDB, function(snapshot) {
                     //console.log('getting onValue snapshot')
                     let gamesSnapshot = Object.entries(snapshot.val()).map((game)=>{
@@ -82,6 +88,29 @@ export default function GameDetails({navigation,route}){
                 // Handle error 
                 console.log(err.message); 
             } 
+
+            try {
+                onValue(usersDB, function(snapshot) {
+                    let currentUID = auth.currentUser.uid;
+                    let usersSnapshot = Object.entries(snapshot.val()).map((user)=>{
+                        if(user[0] === currentUID){
+                            let listArr = user[1].gameList;
+                            setKeyLength(listArr.length);
+                            for(let i=0;i<listArr.length;i++){
+                                if(listArr[i].gameID === gameRefId){
+                                    setGameKey(i);
+                                    setIsFavorite(listArr[i].star);
+                                    setLocationRef(listArr[i].location);
+                                }
+                            }
+                        };
+                    }); 
+                })
+            } catch (error) {
+                // Handle error 
+                console.log(error.message);
+            }
+
         })();
     }, []);
 
@@ -90,6 +119,31 @@ export default function GameDetails({navigation,route}){
             setEditable(!editable);
         }else{
             setEditable(false);
+        }
+    }
+
+    //updates existing items on user list, pending add to list for other edits...
+    function toggleFavorite(){
+        /*User Data structure reference:
+        {[ userID,{ ..., gameList:[{gameID:id,location:'storage location',star:boolean}] } ]}
+        */
+        let updates = {};
+        if(gameKey !== ''){
+            updates[`${currentUser.uid}/gameList/${gameKey}/star/`] = !isFavorite;
+            update(usersDB,updates);
+        }else{
+            /*updates[`${currentUser.uid}/gameList/${keyLength}/`] = {
+                gameID: gameRefId,
+                star: isFavorite,
+                location: locationRef,
+            }*/
+            console.log(`${usersDB}/${currentUser.uid}/gameList/${keyLength}/`);
+    //TODO: keyLength does not currently exist, need to create new entry somehow.
+            update((usersDB+'/'+currentUser.uid+'/gameList/'+keyLength+'/'),{
+                gameID: gameRefId,
+                star: isFavorite,
+                location: locationRef,
+            });
         }
     }
 
@@ -115,8 +169,18 @@ export default function GameDetails({navigation,route}){
         if(maxPlayerRef != newMaxPlayer){
             updates[`${gameRefId}/1/maxPlayer/`] = newMaxPlayer;
         }
-        console.log(updates);
+        //console.log(updates);
         update(gamesDB,updates);
+
+        //updates location for existing games on user's list
+        //TODO: add to user's game list & update location.
+        if(locationRef != newLocation){
+            let changes = {}
+            if(gameKey !== ''){
+                changes[`${currentUser.uid}/gameList/${gameKey}/location/`] = newLocation;
+                update(usersDB,changes);
+            }
+        }
         
     }
 
@@ -167,6 +231,7 @@ export default function GameDetails({navigation,route}){
                         <Pressable style={styles.favoriteButton}
                             onPress={() => {
                                 console.log('Fav Action Clicked'),
+                                toggleFavorite(),
                                 setIsFavorite(!isFavorite)
                             }}>
                             <Text style={isFavorite ? styles.favorite : styles.editButtonText}>Star</Text>
@@ -185,6 +250,7 @@ export default function GameDetails({navigation,route}){
                                     inputMode="text"
                                     onChangeText={(e)=>setNewName(e)}
                                 />
+                                <Text style={styles.sectionLabel}>Game Name</Text>
                             </>
                             }
                         </View>
@@ -210,6 +276,7 @@ export default function GameDetails({navigation,route}){
                                     inputMode="text"
                                     onChangeText={(e)=>setNewDesc(e)}
                                 />
+                                <Text style={styles.sectionLabel}>Game Description</Text>
                             </>
                         }
                     </View>
@@ -237,6 +304,7 @@ export default function GameDetails({navigation,route}){
                                     inputMode="numeric"
                                     onChangeText={(e)=>setNewMinPlayer(e)}
                                 />
+                                <Text style={styles.sectionLabel}> - </Text>
                                 <TextInput
                                     style={styles.inputNumBox}
                                     value={newMaxPlayer}
@@ -256,6 +324,7 @@ export default function GameDetails({navigation,route}){
                                     inputMode="numeric"
                                     onChangeText={(e)=>setMinTimeRef(e)}
                                 />
+                                <Text style={styles.sectionLabel}> - </Text>
                                 <TextInput
                                     style={styles.inputNumBox}
                                     value={maxTimeRef}
@@ -268,6 +337,25 @@ export default function GameDetails({navigation,route}){
                         </View>
                     </>
                     }
+                    <View style={styles.descSection}>
+                        { editable == false ?
+                            <>
+                                <Text style={styles.sectionLabel}>Storage Location</Text>
+                                <Text style={styles.descText}>{locationRef}</Text>
+                            </>
+                            :
+                            <>
+                                <TextInput
+                                    style={styles.inputbox}
+                                    value={newLocation}
+                                    placeholder="Location such as Hall Closet or Car" 
+                                    inputMode="text"
+                                    onChangeText={(e)=>setNewLocation(e)}
+                                />
+                                <Text style={styles.sectionLabel}>Storage Location</Text>
+                            </>
+                        }
+                    </View>
                     {editable ?
                     <>
                         <View style={styles.buttonRow}>
@@ -334,6 +422,7 @@ const styles = StyleSheet.create({
     },
     inputRange:{
         flexDirection: 'row',
+        justifyContent: 'center',
         alignSelf: 'center',
     },
     inputNumBox:{

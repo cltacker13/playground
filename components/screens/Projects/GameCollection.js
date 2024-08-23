@@ -49,7 +49,7 @@ const formatPlayers = (min,max) => {
     return players;
 }
 
-const Item = ({id,gameID,name,desc,minPlayers,maxPlayers,favorite}) => (
+const Item = ({id,gameID,name,desc,minPlayers,maxPlayers,favorite,location}) => (
     <View key={id} style={styles.itemContainer}>
         <View style={styles.imageBox}><Text>{gameID}</Text></View>
         <View style={styles.itemDetailsColumn}>
@@ -88,13 +88,15 @@ export default function GameCollection({navigation}){
         (async () => {
             //console.log('gamesDB: ', gamesDB);
             //console.log('userDB:',usersDB);
+            
+            //this list will be emptied and merged into dbGamesArr
             let dbUsersGameArr = [];
             try {
                 onValue(usersDB, function(snapshot) {
                     let currentUID = auth.currentUser.uid;
                     let usersSnapshot = Object.entries(snapshot.val()).map((user)=>{
                         if(user[0] === currentUID){
-                            console.log('if userGameList:',user[1].gameList[0]);
+                            //console.log('if userGameList:',user[1].gameList[0]);
                             let listArr = user[1].gameList;
                             for(let i=0;i<listArr.length;i++){
                                 dbUsersGameArr.push({
@@ -103,7 +105,7 @@ export default function GameCollection({navigation}){
                                     favorite: listArr[i].star,
                                 })
                             }
-                            console.log(dbUsersGameArr);
+                            //console.log(dbUsersGameArr);
                             setUserGameList(dbUsersGameArr);
                             //setUserGameList(user[1].gameList);
                         };
@@ -113,7 +115,7 @@ export default function GameCollection({navigation}){
                 // Handle error 
                 console.log(error.message);
             }
-            console.log('userGameList:',userGameList);
+            //console.log('userGameList:',userGameList);
             try {
                 //get current "snapshot" of data from db
                 //console.log('Local #: ',gameData.length);
@@ -122,9 +124,13 @@ export default function GameCollection({navigation}){
                     let dbGamesArr = [];
                     //console.log("dbGamesArr: ",dbGamesArr)
                     let gamesSnapshot = Object.entries(snapshot.val()).map((game)=>{
-                        for(let i=1;i<dbUsersGameArr.length;i++){
-                            if(dbUsersGameArr[i].gameID == game[0]){
-                                dbGamesArr.push({                                    id: game[0],
+                        for(let i=0;i<dbUsersGameArr.length;i++){
+                            //console.log('check:',game[0],'vs',dbUsersGameArr[i].gameID,'=',dbUsersGameArr[i].gameID === game[0]);
+                            //console.log(dbUsersGameArr.length)
+                            if(dbUsersGameArr[i].gameID === game[0]){
+                                //console.log(dbUsersGameArr[i].gameID,'on user list')
+                                dbGamesArr.push({                                    
+                                    id: game[0],
                                     gameID: game[1][0],
                                     name: game[1][1].name,
                                     description: game[1][1].description,
@@ -133,7 +139,10 @@ export default function GameCollection({navigation}){
                                     favorite: dbUsersGameArr[i].favorite,
                                     location: dbUsersGameArr[i].location,
                                 })
+                                //removes entry from (temp) user's game list. 
+                                dbUsersGameArr.splice(i,1);
                             }else{
+                                //console.log(dbUsersGameArr[i].gameID,'not in user list')
                                 dbGamesArr.push({
                                     id: game[0],
                                     gameID: game[1][0],
@@ -145,6 +154,7 @@ export default function GameCollection({navigation}){
                                     location: '',
                                 })
                             }
+                            //console.log(dbUsersGameArr[i]);
                         }
                     }); 
                     //console.log('game snapshot:',Object.entries(snapshot.val()));                 
@@ -317,7 +327,11 @@ export default function GameCollection({navigation}){
                                 console.log('View Clicked for',item.name),
                                 navigation.navigate('GameDetails',{item}) 
                                 } }>
-                                <Item id={item.id} gameID={item.gameID} name={item.name} desc={item.description} minPlayers={item.minPlayer} maxPlayers={item.maxPlayer} favorite={item.favorite}/>
+                                <Item id={item.id} gameID={item.gameID} 
+                                    name={item.name} desc={item.description} 
+                                    minPlayers={item.minPlayer} maxPlayers={item.maxPlayer} 
+                                    favorite={item.favorite} location={item.location}
+                                />
                             </Pressable>
                         )}
                         ItemSeparatorComponent={Separator}
