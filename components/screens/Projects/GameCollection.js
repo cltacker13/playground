@@ -13,8 +13,8 @@ onAuthStateChanged(auth, (user) => {
         console.log(`${user.displayName} is logged in.`);
     } else {
         console.log(`Not logged in.`);
-    }
-})
+    };
+});
 
 //project name and details
 export const gameCollectionTitle = 'Game Collection List';
@@ -49,7 +49,7 @@ const formatPlayers = (min,max) => {
         players = `${min}-${max} players`;
     }
     return players;
-}
+};
 
 const Item = ({id,gameID,name,desc,minPlayers,maxPlayers,favorite,location}) => (
     <View key={id} style={styles.itemContainer}>
@@ -119,8 +119,8 @@ export default function GameCollection({navigation}){
                             //setUserGameList(user[1].gameList);
                         //};
                     }); 
-                })
-                console.log('after users on value',dbUsersGameArr);
+                });
+                //console.log('after users on value',dbUsersGameArr);
             } catch (error) {
                 // Handle error 
                 console.log(error.message);
@@ -132,8 +132,8 @@ export default function GameCollection({navigation}){
                 //console.log('Local #: ',gameData.length);
                 onValue(gamesDB, function(snapshot) {
                     //console.log('getting onValue snapshot')
-                    console.log("dbGamesArr: ",dbGamesArr)
-                    console.log("dbUsersGamesArr: ",dbUsersGameArr)
+                    //console.log("dbGamesArr: ",dbGamesArr);
+                   //console.log("dbUsersGamesArr: ",dbUsersGameArr);
                     let gamesSnapshot = Object.entries(snapshot.val()).map((game)=>{
                         let data = { 
                             id: game[0],
@@ -146,10 +146,10 @@ export default function GameCollection({navigation}){
                             location: '',
                         };
                         if(dbUsersGameArr.length>0){
-                            console.log(dbUsersGameArr.length)
+                            //console.log(dbUsersGameArr.length);
                             for(let i=0;i<dbUsersGameArr.length;i++){
                                 //console.log('check:',game[0],'vs',dbUsersGameArr[i].gameID,'=',dbUsersGameArr[i].gameID === game[0]);
-                                console.log(dbUsersGameArr)
+                                //console.log(dbUsersGameArr);
                                 if(dbUsersGameArr[i].gameID === game[0]){
                                     //console.log(dbUsersGameArr[i].gameID,'on user list')
                                     //dbGamesArr.push({                                    
@@ -166,14 +166,14 @@ export default function GameCollection({navigation}){
                                     //})
                                     //removes entry from (temp) user's game list. 
                                     //dbUsersGameArr.splice(i,1);
-                                    console.log(dbUsersGameArr.length)
-                                }
-                            }
+                                    //console.log(dbUsersGameArr.length);
+                                };
+                            };
                             dbGamesArr.push(data);
 
                         }else {
                             dbGamesArr.push(data);
-                        }
+                        };
                     }); 
                     //console.log('game snapshot:',Object.entries(snapshot.val()));                 
                     //console.log('2db games list: ',dbGamesArr);

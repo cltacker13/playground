@@ -34,6 +34,7 @@ export default function GameDetails({navigation,route}){
     const {height, width, scale, fontScale} = useWindowDimensions();
     //const [gameData, setGameData] = useState([]);
     const currentUser = auth.currentUser;
+    console.log('uid',currentUser.uid);
     const thisGame = route.params.item; 
     const gameRefId = thisGame.id;
     const gameID = thisGame.gameID;
@@ -94,19 +95,19 @@ export default function GameDetails({navigation,route}){
             try {
                 onValue(ref(db,'/Users/'+auth.currentUser.uid+'/gameList/'), function(snapshot) {
                     let usersSnapshot = Object.entries(snapshot.val()).map((userGames)=>{
-                        console.log('test',userGames.length);
+                        //console.log('test',userGames.length);
                         let listArr = userGames;
-                        console.log('test',listArr);
+                        //console.log('test',listArr);
                         for(let i=0;i<listArr.length;i++){
                             if(listArr[i].gameID === gameRefId){
-                                console.log('key:',userGames[0]);
+                                //console.log('key:',userGames[0]);
                                 setGameKey(userGames[0]);
                                 setIsFavorite(listArr[i].star);
                                 setLocationRef(listArr[i].location);
                             };
                         };
                     }); 
-                    console.log('keyLength:',usersSnapshot.length);
+                    //console.log('keyLength:',usersSnapshot.length);
                     setKeyLength(usersSnapshot.length);
                 });
             } catch (error) {
@@ -131,9 +132,9 @@ export default function GameDetails({navigation,route}){
         {[ userID,{ ..., gameList:[{gameID:id,location:'storage location',star:boolean}] } ]}
         */
         let updates = {};
-        console.log('#',gameKey,'of',keyLength);
+        //console.log('#',gameKey,'of',keyLength);
         if(gameKey !== ''){
-            console.log(`${usersDB}/${currentUser.uid}/gameList/${gameKey}/`);
+            //console.log(`${usersDB}/${currentUser.uid}/gameList/${gameKey}/`);
             updates[`${currentUser.uid}/gameList/${gameKey}/star/`] = !isFavorite;
             update(usersDB,updates);
             //update(ref(db,'Users/'+currentUser.uid+'/gameList/'+gameKey+'/'),{star:`${!isFavorite}`})
