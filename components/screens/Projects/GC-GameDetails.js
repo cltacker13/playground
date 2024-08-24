@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TextInput, Pressable, FlatList, Modal, useWindowDimensions } from 'react-native';
 import { onAuthStateChanged } from 'firebase/auth';
-import { ref, update, child, push, onValue, set } from 'firebase/database';
+import { getDatabase, ref, update, child, push, onValue, set } from 'firebase/database';
 import auth from '../../firebase/Auth';
 import gamesDB from '../../firebase/Games';
 import usersDB from '../../firebase/Users';
+
+const db = getDatabase();
 
 const formatPlayers = (min,max) => {
     let players = '';
@@ -18,7 +20,7 @@ const formatPlayers = (min,max) => {
         players = `${min}-${max}`;
     }
     return players;
-}
+};
 
 onAuthStateChanged(auth, (user) => {
     if(user){
@@ -26,7 +28,7 @@ onAuthStateChanged(auth, (user) => {
     } else {
         console.log(`Not logged in.`);
     }
-})
+});
 
 export default function GameDetails({navigation,route}){
     const {height, width, scale, fontScale} = useWindowDimensions();
@@ -71,45 +73,46 @@ export default function GameDetails({navigation,route}){
         (async () => {
             try {
                 //get current "snapshot" of game data from db
-                onValue(gamesDB, function(snapshot) {
+                onValue(ref(db,'/Games/'+gameRefId), function(snapshot) {
                     //console.log('getting onValue snapshot')
                     let gamesSnapshot = Object.entries(snapshot.val()).map((game)=>{
-                        if(game[0] == gameRefId){
+                        if(game[0] == gameRefId){//no longer needed, if snapshot of gameRefId
                             console.log(game[1][1].name);
                             setGameNameRef(game[1][1].name);
                             setGameDescRef(game[1][1].description);
                             setMinPlayerRef(game[1][1].minPlayer);
                             setMaxPlayerRef(game[1][1].maxPlayer);
-                        }
+                        };
                     }); 
                     //console.log('game snapshot:',Object.entries(snapshot.val()));
-                }) 
+                });
             } catch (err) {
                 // Handle error 
                 console.log(err.message); 
-            } 
+            };
 
             try {
-                onValue(usersDB, function(snapshot) {
-                    let currentUID = auth.currentUser.uid;
-                    let usersSnapshot = Object.entries(snapshot.val()).map((user)=>{
-                        if(user[0] === currentUID){
-                            let listArr = user[1].gameList;
-                            setKeyLength(listArr.length);
-                            for(let i=0;i<listArr.length;i++){
-                                if(listArr[i].gameID === gameRefId){
-                                    setGameKey(i);
-                                    setIsFavorite(listArr[i].star);
-                                    setLocationRef(listArr[i].location);
-                                }
-                            }
+                onValue(ref(db,'/Users/'+auth.currentUser.uid+'/gameList/'), function(snapshot) {
+                    let usersSnapshot = Object.entries(snapshot.val()).map((userGames)=>{
+                        console.log('test',userGames.length);
+                        let listArr = userGames;
+                        console.log('test',listArr);
+                        for(let i=0;i<listArr.length;i++){
+                            if(listArr[i].gameID === gameRefId){
+                                console.log('key:',userGames[0]);
+                                setGameKey(userGames[0]);
+                                setIsFavorite(listArr[i].star);
+                                setLocationRef(listArr[i].location);
+                            };
                         };
                     }); 
-                })
+                    console.log('keyLength:',usersSnapshot.length);
+                    setKeyLength(usersSnapshot.length);
+                });
             } catch (error) {
                 // Handle error 
                 console.log(error.message);
-            }
+            };
 
         })();
     }, []);
@@ -119,8 +122,8 @@ export default function GameDetails({navigation,route}){
             setEditable(!editable);
         }else{
             setEditable(false);
-        }
-    }
+        };
+    };
 
     //updates existing items on user list, pending add to list for other edits...
     function toggleFavorite(){
@@ -128,24 +131,25 @@ export default function GameDetails({navigation,route}){
         {[ userID,{ ..., gameList:[{gameID:id,location:'storage location',star:boolean}] } ]}
         */
         let updates = {};
+        console.log('#',gameKey,'of',keyLength);
         if(gameKey !== ''){
+            console.log(`${usersDB}/${currentUser.uid}/gameList/${gameKey}/`);
             updates[`${currentUser.uid}/gameList/${gameKey}/star/`] = !isFavorite;
             update(usersDB,updates);
+            //update(ref(db,'Users/'+currentUser.uid+'/gameList/'+gameKey+'/'),{star:`${!isFavorite}`})
+
         }else{
-            /*updates[`${currentUser.uid}/gameList/${keyLength}/`] = {
+            //console.log(`${usersDB}/${currentUser.uid}/gameList/${keyLength}/`);
+            console.log('add new entry to user game list');
+            update(ref(db,'/Users/'+currentUser.uid+'/gameList/'+keyLength+'/'),{
                 gameID: gameRefId,
-                star: isFavorite,
-                location: locationRef,
-            }*/
-            console.log(`${usersDB}/${currentUser.uid}/gameList/${keyLength}/`);
-    //TODO: keyLength does not currently exist, need to create new entry somehow.
-            update((usersDB+'/'+currentUser.uid+'/gameList/'+keyLength+'/'),{
-                gameID: gameRefId,
-                star: isFavorite,
+                star: !isFavorite,
                 location: locationRef,
             });
-        }
-    }
+            setGameKey(keyLength);
+            setKeyLength(keyLength+1);
+        };
+    };
 
     function editItem(){
         /*Game Data structure reference:
@@ -159,30 +163,39 @@ export default function GameDetails({navigation,route}){
         if(gameNameRef != newName){
             updates[`${gameRefId}/1/name/`] = newName;
             //console.log('new name:',newName);
-        }
+        };
         if(gameDescRef != newDesc){
             updates[`${gameRefId}/1/description/`] = newDesc;
-        }
+        };
         if(minPlayerRef != newMinPlayer){
             updates[`${gameRefId}/1/minPlayer/`] = newMinPlayer;
-        }
+        };
         if(maxPlayerRef != newMaxPlayer){
             updates[`${gameRefId}/1/maxPlayer/`] = newMaxPlayer;
-        }
+        };
         //console.log(updates);
         update(gamesDB,updates);
 
         //updates location for existing games on user's list
         //TODO: add to user's game list & update location.
         if(locationRef != newLocation){
-            let changes = {}
+            let changes = {};
             if(gameKey !== ''){
                 changes[`${currentUser.uid}/gameList/${gameKey}/location/`] = newLocation;
                 update(usersDB,changes);
-            }
-        }
-        
-    }
+            }else{
+                //console.log(`${usersDB}/${currentUser.uid}/gameList/${keyLength}/`);
+                console.log('add new entry to user game list')
+                update(ref(db,'/Users/'+currentUser.uid+'/gameList/'+keyLength+'/'),{
+                    gameID: gameRefId,
+                    star: isFavorite,
+                    location: newLocation,
+                });
+                setGameKey(keyLength);
+                setKeyLength(keyLength+1);
+            };
+        };
+    };
 
     return(
         <View style={styles.body}>

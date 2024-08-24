@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TextInput, Pressable, FlatList, Modal, useWindowDimensions } from 'react-native';
 import { onAuthStateChanged } from 'firebase/auth';
-import { push, onValue } from 'firebase/database';
+import { getDatabase, ref, push, onValue } from 'firebase/database';
 import auth from '../../firebase/Auth';
 import gamesDB from '../../firebase/Games';
 import usersDB from '../../firebase/Users';
+
+const db = getDatabase();
 
 onAuthStateChanged(auth, (user) => {
     if(user){
@@ -88,73 +90,89 @@ export default function GameCollection({navigation}){
         (async () => {
             //console.log('gamesDB: ', gamesDB);
             //console.log('userDB:',usersDB);
-            
+
             //this list will be emptied and merged into dbGamesArr
             let dbUsersGameArr = [];
             try {
-                onValue(usersDB, function(snapshot) {
-                    let currentUID = auth.currentUser.uid;
-                    let usersSnapshot = Object.entries(snapshot.val()).map((user)=>{
-                        if(user[0] === currentUID){
+                onValue(ref(db,'/Users/'+auth.currentUser.uid+'/gameList/'), function(snapshot) {
+                    //onValue(usersDB, function(snapshot) {
+                    //let currentUID = auth.currentUser.uid;
+                    let usersSnapshot = Object.entries(snapshot.val()).map((userGames)=>{
+                        //if(user[0] === currentUID){
                             //console.log('if userGameList:',user[1].gameList[0]);
-                            let listArr = user[1].gameList;
+                            let listArr = userGames;
+                            //console.log('user listArr:',listArr);
                             for(let i=0;i<listArr.length;i++){
-                                dbUsersGameArr.push({
-                                    gameID: listArr[i].gameID,
-                                    location: listArr[i].location,
-                                    favorite: listArr[i].star,
-                                })
+                                //clean undefined values... idk where came from.
+                                if(listArr[i].gameID == undefined){
+                                    console.log(listArr[i].gameID,'skipped underfined')
+                                }else{
+                                    dbUsersGameArr.push({
+                                        gameID: listArr[i].gameID,
+                                        location: listArr[i].location,
+                                        favorite: listArr[i].star,
+                                    })
+                                }
                             }
                             //console.log(dbUsersGameArr);
                             setUserGameList(dbUsersGameArr);
                             //setUserGameList(user[1].gameList);
-                        };
+                        //};
                     }); 
                 })
+                console.log('after users on value',dbUsersGameArr);
             } catch (error) {
                 // Handle error 
                 console.log(error.message);
             }
             //console.log('userGameList:',userGameList);
+            let dbGamesArr = [];
             try {
                 //get current "snapshot" of data from db
                 //console.log('Local #: ',gameData.length);
                 onValue(gamesDB, function(snapshot) {
                     //console.log('getting onValue snapshot')
-                    let dbGamesArr = [];
-                    //console.log("dbGamesArr: ",dbGamesArr)
+                    console.log("dbGamesArr: ",dbGamesArr)
+                    console.log("dbUsersGamesArr: ",dbUsersGameArr)
                     let gamesSnapshot = Object.entries(snapshot.val()).map((game)=>{
-                        for(let i=0;i<dbUsersGameArr.length;i++){
-                            //console.log('check:',game[0],'vs',dbUsersGameArr[i].gameID,'=',dbUsersGameArr[i].gameID === game[0]);
-                            //console.log(dbUsersGameArr.length)
-                            if(dbUsersGameArr[i].gameID === game[0]){
-                                //console.log(dbUsersGameArr[i].gameID,'on user list')
-                                dbGamesArr.push({                                    
-                                    id: game[0],
-                                    gameID: game[1][0],
-                                    name: game[1][1].name,
-                                    description: game[1][1].description,
-                                    minPlayer: game[1][1].minPlayer,
-                                    maxPlayer: game[1][1].maxPlayer,
-                                    favorite: dbUsersGameArr[i].favorite,
-                                    location: dbUsersGameArr[i].location,
-                                })
-                                //removes entry from (temp) user's game list. 
-                                dbUsersGameArr.splice(i,1);
-                            }else{
-                                //console.log(dbUsersGameArr[i].gameID,'not in user list')
-                                dbGamesArr.push({
-                                    id: game[0],
-                                    gameID: game[1][0],
-                                    name: game[1][1].name,
-                                    description: game[1][1].description,
-                                    minPlayer: game[1][1].minPlayer,
-                                    maxPlayer: game[1][1].maxPlayer,
-                                    favorite: false,
-                                    location: '',
-                                })
+                        let data = { 
+                            id: game[0],
+                            gameID: game[1][0],
+                            name: game[1][1].name,
+                            description: game[1][1].description,
+                            minPlayer: game[1][1].minPlayer,
+                            maxPlayer: game[1][1].maxPlayer,
+                            favorite: false,
+                            location: '',
+                        };
+                        if(dbUsersGameArr.length>0){
+                            console.log(dbUsersGameArr.length)
+                            for(let i=0;i<dbUsersGameArr.length;i++){
+                                //console.log('check:',game[0],'vs',dbUsersGameArr[i].gameID,'=',dbUsersGameArr[i].gameID === game[0]);
+                                console.log(dbUsersGameArr)
+                                if(dbUsersGameArr[i].gameID === game[0]){
+                                    //console.log(dbUsersGameArr[i].gameID,'on user list')
+                                    //dbGamesArr.push({                                    
+                                    data = {
+                                        id: game[0],
+                                        gameID: game[1][0],
+                                        name: game[1][1].name,
+                                        description: game[1][1].description,
+                                        minPlayer: game[1][1].minPlayer,
+                                        maxPlayer: game[1][1].maxPlayer,
+                                        favorite: dbUsersGameArr[i].favorite,
+                                        location: dbUsersGameArr[i].location,
+                                    };
+                                    //})
+                                    //removes entry from (temp) user's game list. 
+                                    //dbUsersGameArr.splice(i,1);
+                                    console.log(dbUsersGameArr.length)
+                                }
                             }
-                            //console.log(dbUsersGameArr[i]);
+                            dbGamesArr.push(data);
+
+                        }else {
+                            dbGamesArr.push(data);
                         }
                     }); 
                     //console.log('game snapshot:',Object.entries(snapshot.val()));                 
